@@ -1,0 +1,46 @@
+
+<html>
+
+<head>
+	<title>Interactive Computer Music</title>
+</head>
+
+<body>
+
+	<script language="javascript">
+
+		if ('webkitAudioContext' in window) {
+    		var myAudioContext = new webkitAudioContext();
+		}
+
+		var source = myAudioContext.createOscillator();
+		//source.type = 1; // square wave
+
+		var curveLength = 100;
+		var curve1 = new Float32Array(curveLength);
+		var curve2 = new Float32Array(curveLength);
+		for (var i = 0; i < curveLength; i++)
+		    curve1[i] = Math.sin(Math.PI * i / curveLength);
+		 
+		for (var i = 0; i < curveLength; i++)
+		    curve2[i] = Math.cos(Math.PI * i / curveLength);
+		 
+		var waveTable = myAudioContext.createWaveTable(curve1, curve2);
+		source.setWaveTable(waveTable);
+
+		source.connect(myAudioContext.destination);
+
+		// play right now (0 seconds from now)
+		//source.noteOn(0)
+
+		// play 8 notes evenly spaced over the course of a half-second
+		for (var i = 0; i < 8; i++) {
+		    var rest = i / 16;
+		    source.noteOn(myAudioContext.currentTime + rest);
+		}
+
+	</script>
+
+</body>
+
+</html>
