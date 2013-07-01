@@ -3,24 +3,8 @@
 
 <head>
 	<title>Interactive Computer Music</title>
-</head>
-
-<body>
-
-	<form>
-		Note: <input type="text" id="note"></input>
-		<input type="submit" value="Submit" onclick="test()">
-	</form>
-	
 
 	<script language="javascript">
-
-		if ('webkitAudioContext' in window) {
-    		var myAudioContext = new webkitAudioContext();
-		}
-		else {
-			alert("Sorry - this app requires an updated version of Chrome or Safari!");
-		}
 
 		/*
 		 * Inputs: note   --- a string of the note to play, such as 'A'
@@ -67,12 +51,98 @@
 		 	}
 		}
 
+		/*
+		 * Inputs: note --- the string representation of a note
+		 *
+		 * Returns the frequency of the note.
+		 */
+		 function noteToFrequency(note) {
+		 	switch (note) {
+		 		case "A":
+		 			return 440.00;
+		 		case "A#":
+		 			return 466.16;
+		 		case "Bb":
+		 			return 466.16;
+		 		case "B":
+		 			return 493.88;
+		 		case "Cb":
+		 			return 493.88;
+		 		case "C":
+		 			return 523.25;
+		 		case "C#":
+		 			return 554.37;
+		 		case "Db":
+		 			return 554.37;
+		 		case "D":
+		 			return 587.33;
+		 		case "D#":
+		 			return 622.25;
+		 		case "Eb":
+		 			return 622.25;
+		 		case "E":
+		 			return 659.26;
+		 		case "Fb":
+		 			return 659.26;
+		 		case "F":
+		 			return 698.46;
+		 		case "F#":
+		 			return 739.99;
+		 		case "Gb":
+		 			return 739.99;
+		 		case "G":
+		 			return 783.99;
+		 		case "G#":
+		 			return 830.61;
+		 		case "Ab":
+		 			return 830.61;
+		 	}
+		 }
+
+		 function swag() {
+		 	notes.pop();
+		 }
+
+	</script>
+
+	<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
+</head>
+
+
+
+<body>
+
+	<script src="http://code.jquery.com/jquery.js"></script>
+    <script src="bootstrap/js/bootstrap.min.js"></script>
+
+    <div class="hero-unit">
+
+
+		<h1>Interactive Computer Music</h1>
+
+		<button class="btn btn-large btn-primary" type="button" onclick="swag()">Remove Note</button>
+
+		<br><br><br><br><br><br><br><br><br><br>
+
+	</div>
+
+	<script langugae="javascript" >
+
+		if ('webkitAudioContext' in window) {
+    		var myAudioContext = new webkitAudioContext();
+		}
+		else {
+			alert("Sorry - this app requires an updated version of Chrome or Safari!");
+		}
+
+		var notes = ["A", "B", "C#", "D", "E", "F#", "G#"];
+
 		var timer = new interval(1000, function() {
-	    	playNote((Math.random()*620)+220, 1);
+	    	playNote(noteToFrequency(notes[Math.floor(Math.random() * notes.length)]), 1);
 	    });
 		
 	    var timer2 = new interval(1000, function() {
-	    	playNote((Math.random()*620)+220, 1);
+	    	playNote(noteToFrequency("A"), 1);
 	    });
 
 	    timer.run();
