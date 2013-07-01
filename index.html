@@ -7,37 +7,76 @@
 
 <body>
 
+	<form>
+		Note: <input type="text" id="note"></input>
+		<input type="submit" value="Submit" onclick="test()">
+	</form>
+	
+
 	<script language="javascript">
 
 		if ('webkitAudioContext' in window) {
     		var myAudioContext = new webkitAudioContext();
 		}
-
-		var source = myAudioContext.createOscillator();
-		//source.type = 1; // square wave
-
-		var curveLength = 100;
-		var curve1 = new Float32Array(curveLength);
-		var curve2 = new Float32Array(curveLength);
-		for (var i = 0; i < curveLength; i++)
-		    curve1[i] = Math.sin(Math.PI * i / curveLength);
-		 
-		for (var i = 0; i < curveLength; i++)
-		    curve2[i] = Math.cos(Math.PI * i / curveLength);
-		 
-		var waveTable = myAudioContext.createWaveTable(curve1, curve2);
-		source.setWaveTable(waveTable);
-
-		source.connect(myAudioContext.destination);
-
-		// play right now (0 seconds from now)
-		//source.noteOn(0)
-
-		// play 8 notes evenly spaced over the course of a half-second
-		for (var i = 0; i < 8; i++) {
-		    var rest = i / 16;
-		    source.noteOn(myAudioContext.currentTime + rest);
+		else {
+			alert("Sorry - this app requires an updated version of Chrome or Safari!");
 		}
+
+		/*
+		 * Inputs: note   --- a string of the note to play, such as 'A'
+		 * 		   length --- the number of seconds to play the note
+		 *
+		 * Plays a specified note for a certain length of time.
+		 */
+		function playNote(note, length) {
+			var source = myAudioContext.createOscillator();
+			source.type = 1; 
+			source.frequency.value = note;
+			source.connect(myAudioContext.destination);
+			source.start(myAudioContext.currentTime);
+			source.stop(myAudioContext.currentTime + length);
+		}
+
+		/*
+		 * Inputs: duration --- the interval at which to call the function
+		 * 		   fn       --- the function to call
+		 *
+		 * Replaces setTimeout() with a more accurate version.
+		 */
+		function interval(duration, fn) {
+			this.baseline = undefined
+			this.run = function() {
+			    if (this.baseline === undefined) {
+			    	this.baseline = new Date().getTime();
+			    }
+			    fn();
+			    var end = new Date().getTime();
+			    this.baseline += duration;
+			    var nextTick = duration - (end - this.baseline);
+			    if (nextTick < 0) {
+			      nextTick = 0;
+			    }
+			    (function(i) {
+			        i.timer = setTimeout(function() {
+			        	i.run(end);
+			      	}, nextTick)
+			    }) (this)
+		  	}
+			this.stop = function() {
+		   		clearTimeout(this.timer);
+		 	}
+		}
+
+		var timer = new interval(1000, function() {
+	    	playNote((Math.random()*620)+220, 1);
+	    });
+		
+	    var timer2 = new interval(1000, function() {
+	    	playNote((Math.random()*620)+220, 1);
+	    });
+
+	    timer.run();
+	    timer2.run();
 
 	</script>
 
