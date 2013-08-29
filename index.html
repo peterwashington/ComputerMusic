@@ -99,32 +99,53 @@
 		 	}
 		 }
 
-		 function swag() {
+		 /*
+		  * Start the music.
+		  */
+		 function start() {
+		 	timer.run();
+	    	timer2.run();
+		 }
+
+		 /*
+		  * Remove a note from the list of available notes.
+		  */
+		 function remove_note() {
 		 	notes.pop();
 		 }
 
 	</script>
 
 	<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
+
 </head>
-
-
 
 <body>
 
 	<script src="http://code.jquery.com/jquery.js"></script>
     <script src="bootstrap/js/bootstrap.min.js"></script>
 
+    <script langugae="javascript">
+
+    </script>
+
+    <h1>Interactive Computer Music</h1>
+
+	<br>
+
     <div class="hero-unit">
 
+    	<br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 
-		<h1>Interactive Computer Music</h1>
+		<button class="btn btn-large btn-primary" type="button" onclick="start()">Start</button>
 
-		<button class="btn btn-large btn-primary" type="button" onclick="swag()">Remove Note</button>
-
-		<br><br><br><br><br><br><br><br><br><br>
+		<button class="btn btn-large btn-primary" type="button" onclick="remove_note()">Remove Note</button>
 
 	</div>
+
+	<br>
+
+	&nbsp;&nbsp;A project by Peter Washington at Rice University.
 
 	<script langugae="javascript" >
 
@@ -144,9 +165,6 @@
 	    var timer2 = new interval(1000, function() {
 	    	playNote(noteToFrequency("A"), 1);
 	    });
-
-	    timer.run();
-	    timer2.run();
 
 	</script>
 
