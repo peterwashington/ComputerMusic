@@ -1,192 +1,201 @@
-
 <html>
 
-<head>
-	<title>Interactive Computer Music</title>
+	<head>
+		<title>Interactive Computer Music</title>
 
-	<script language="javascript">
+		<link href="style.css" rel="stylesheet" type="text/css">
 
-		/*
-		 * Inputs: note   --- a string of the note to play, such as 'A'
-		 * 		   length --- the number of seconds to play the note
-		 *
-		 * Plays a specified note for a certain length of time.
-		 */
-		function playNote(source, note, length) {
-			//var source = myAudioContext.createOscillator();
-			//source.type = 1; 
-			source.frequency.value = note;
-			//source.connect(myAudioContext.destination);
-			source.start(myAudioContext.currentTime);
-			//source.stop(myAudioContext.currentTime + length);
-		}
+		<script language="javascript">
 
-		/*
-		 * Inputs: duration --- the interval at which to call the function
-		 * 		   fn       --- the function to call
-		 *
-		 * Replaces setTimeout() with a more accurate version.
-		 */
-		function interval(duration, fn) {
-			this.baseline = undefined
-			this.run = function() {
-			    if (this.baseline === undefined) {
-			    	this.baseline = new Date().getTime();
-			    }
-			    fn();
-			    var end = new Date().getTime();
-			    this.baseline += duration;
-			    var nextTick = duration - (end - this.baseline);
-			    if (nextTick < 0) {
-			      nextTick = 0;
-			    }
-			    (function(i) {
-			        i.timer = setTimeout(function() {
-			        	i.run(end);
-			      	}, nextTick)
-			    }) (this)
-		  	}
-			this.stop = function() {
-		   		clearTimeout(this.timer);
-		 	}
-		}
+			/*
+			 * Inputs: note   --- a string of the note to play, such as 'A'
+			 * 		   length --- the number of seconds to play the note
+			 *
+			 * Plays a specified note for a certain length of time.
+			 */
+			function playNote(source, note, length) {
+				//var source = myAudioContext.createOscillator();
+				//source.type = 1; 
+				source.frequency.value = note;
+				//source.connect(myAudioContext.destination);
+				source.start(myAudioContext.currentTime);
+				//source.stop(myAudioContext.currentTime + length);
+			}
 
-		/*
-		 * Inputs: note --- the string representation of a note
-		 *
-		 * Returns the frequency of the note.
-		 */
-		 function noteToFrequency(note) {
-		 	switch (note) {
-		 		case "A":
-		 			return 440.00;
-		 		case "A#":
-		 			return 466.16;
-		 		case "Bb":
-		 			return 466.16;
-		 		case "B":
-		 			return 493.88;
-		 		case "Cb":
-		 			return 493.88;
-		 		case "C":
-		 			return 523.25;
-		 		case "C#":
-		 			return 554.37;
-		 		case "Db":
-		 			return 554.37;
-		 		case "D":
-		 			return 587.33;
-		 		case "D#":
-		 			return 622.25;
-		 		case "Eb":
-		 			return 622.25;
-		 		case "E":
-		 			return 659.26;
-		 		case "Fb":
-		 			return 659.26;
-		 		case "F":
-		 			return 698.46;
-		 		case "F#":
-		 			return 739.99;
-		 		case "Gb":
-		 			return 739.99;
-		 		case "G":
-		 			return 783.99;
-		 		case "G#":
-		 			return 830.61;
-		 		case "Ab":
-		 			return 830.61;
-		 	}
-		 }
+			/*
+			 * Inputs: duration --- the interval at which to call the function
+			 * 		   fn       --- the function to call
+			 *
+			 * Replaces setTimeout() with a more accurate version.
+			 */
+			function interval(duration, fn) {
+				this.baseline = undefined
+				this.run = function() {
+				    if (this.baseline === undefined) {
+				    	this.baseline = new Date().getTime();
+				    }
+				    fn();
+				    var end = new Date().getTime();
+				    this.baseline += duration;
+				    var nextTick = duration - (end - this.baseline);
+				    if (nextTick < 0) {
+				      nextTick = 0;
+				    }
+				    (function(i) {
+				        i.timer = setTimeout(function() {
+				        	i.run(end);
+				      	}, nextTick)
+				    }) (this)
+			  	}
+				this.stop = function() {
+			   		clearTimeout(this.timer);
+			 	}
+			}
 
-		 /*
-		  * Start the music.
-		  */
-		 function start() {
-		 	timer.run();
-	    	timer2.run();
-		 }
+			/*
+			 * Inputs: note --- the string representation of a note
+			 *
+			 * Returns the frequency of the note.
+			 */
+			 function noteToFrequency(note) {
+			 	switch (note) {
+			 		case "A":
+			 			return 440.00;
+			 		case "A#":
+			 			return 466.16;
+			 		case "Bb":
+			 			return 466.16;
+			 		case "B":
+			 			return 493.88;
+			 		case "Cb":
+			 			return 493.88;
+			 		case "C":
+			 			return 523.25;
+			 		case "C#":
+			 			return 554.37;
+			 		case "Db":
+			 			return 554.37;
+			 		case "D":
+			 			return 587.33;
+			 		case "D#":
+			 			return 622.25;
+			 		case "Eb":
+			 			return 622.25;
+			 		case "E":
+			 			return 659.26;
+			 		case "Fb":
+			 			return 659.26;
+			 		case "F":
+			 			return 698.46;
+			 		case "F#":
+			 			return 739.99;
+			 		case "Gb":
+			 			return 739.99;
+			 		case "G":
+			 			return 783.99;
+			 		case "G#":
+			 			return 830.61;
+			 		case "Ab":
+			 			return 830.61;
+			 	}
+			 }
 
-		 /*
-		  * Remove a note from the list of available notes.
-		  */
-		 function remove_note() {
-		 	notes.pop();
-		 }
+			 /*
+			  * Start the music.
+			  */
+			 function start() {
+			 	timer.run();
+		    	timer2.run();
+			 }
 
-	</script>
+			 /*
+			  * Remove a note from the list of available notes.
+			  */
+			 function remove_note() {
+			 	notes.pop();
+			 }
 
-	<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
+		</script>
 
-</head>
+		<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
 
-<body>
+	</head>
 
-	<script src="http://code.jquery.com/jquery.js"></script>
-    <script src="bootstrap/js/bootstrap.min.js"></script>
+	<body>
 
-    <script langugae="javascript">
+		<script src="http://code.jquery.com/jquery.js"></script>
+	    <script src="bootstrap/js/bootstrap.min.js"></script>
 
-    </script>
+	    <script langugae="javascript">
 
-    <h1>Interactive Computer Music</h1>
+	    </script>
 
-	<br>
+	    <h1>Interactive Computer Music</h1>
 
-    <div class="hero-unit">
+		<br>
 
-    	<br><br><br><br><br><br><br><br><br><br><br><br>
+	    <div class="hero-unit">
 
-    	Volume<br>
-    	<input id="volume" type="range" min="0" max="1" step="0.1" value="0.5"/>
+	    	<br><br><br><br>
 
-    	<br>
+	    	<p id="textelement">Note: </p>
 
-		<button class="btn btn-large btn-primary" type="button" onclick="start()">Start</button>
-		<button class="btn btn-large btn-primary" type="button" onclick="remove_note()">Remove Note</button>
+	    	<br><br><br><br><br><br><br><br>
 
-	</div>
+	    	Volume<br>
+	    	<input id="volume" type="range" min="0" max="1" step="0.001" value="0.5"/>
 
-	<br>
+	    	<br>
 
-	&nbsp;&nbsp;A project by Peter Washington at Rice University.
+			<button class="btn btn-large btn-primary" type="button" onclick="start()">Start</button>
+			<button class="btn btn-large btn-primary" type="button" onclick="remove_note()">Remove Note</button>
 
-	<script langugae="javascript" >
+		</div>
 
-		if ('webkitAudioContext' in window) {
-    		var myAudioContext = new webkitAudioContext();
-		}
-		else {
-			alert("Sorry - this app requires an updated version of Chrome or Safari!");
-		}
+		<br>
 
-		var notes = ["A", "B", "C#", "D", "E", "F#", "G#"];
+		&nbsp;&nbsp;A project by Peter Washington at Rice University.
 
-		var gainNode = myAudioContext.createGainNode();
-		var source1 = myAudioContext.createOscillator();
-		source1.type = 1; 
-		var source2 = myAudioContext.createOscillator();
-		source2.type = 1; 
+		<canvas width=700 height=100></canvas>
 
-		source1.connect(gainNode);
-		source2.connect(gainNode);
+		<script langugae="javascript">
 
-		gainNode.connect(myAudioContext.destination);
+			if ('webkitAudioContext' in window) {
+	    		var myAudioContext = new webkitAudioContext();
+			}
+			else {
+				alert("Sorry - this app requires an updated version of Chrome or Safari!");
+			}
 
-		document.getElementById('volume').addEventListener('change', function() {
-		    gainNode.gain.value = this.value;
-		});
+			var notes = ["A", "B", "C#", "D", "E", "F#", "G#"];
 
-		var timer = new interval(1000, function() {
-	    	playNote(source1, noteToFrequency(notes[Math.floor(Math.random() * notes.length)]), 1);
-	    });
-		
-	    var timer2 = new interval(1000, function() {
-	    	playNote(source2, noteToFrequency("A"), 1);
-	    }); 
+			var gainNode = myAudioContext.createGainNode();
+			var source1 = myAudioContext.createOscillator();
+			source1.type = 1; 
+			var source2 = myAudioContext.createOscillator();
+			source2.type = 1; 
 
-	</script>
+			source1.connect(gainNode);
+			source2.connect(gainNode);
 
-</body>
+			gainNode.connect(myAudioContext.destination);
+
+			document.getElementById('volume').addEventListener('change', function() {
+			    gainNode.gain.value = this.value;
+			});
+
+			var timer = new interval(1000, function() {
+				var note = notes[Math.floor(Math.random() * notes.length)];
+		    	playNote(source1, noteToFrequency(note), 1);
+		    	document.getElementById("textelement").innerHTML = "Note: " + note;
+		    });
+
+		    var timer2 = new interval(1000, function() {
+		    	playNote(source2, noteToFrequency("A"), 1);
+		    }); 
+
+		</script>
+
+	</body>
 
 </html>
