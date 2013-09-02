@@ -12,13 +12,13 @@
 		 *
 		 * Plays a specified note for a certain length of time.
 		 */
-		function playNote(note, length) {
-			var source = myAudioContext.createOscillator();
-			source.type = 1; 
+		function playNote(source, note, length) {
+			//var source = myAudioContext.createOscillator();
+			//source.type = 1; 
 			source.frequency.value = note;
-			source.connect(myAudioContext.destination);
+			//source.connect(myAudioContext.destination);
 			source.start(myAudioContext.currentTime);
-			source.stop(myAudioContext.currentTime + length);
+			//source.stop(myAudioContext.currentTime + length);
 		}
 
 		/*
@@ -135,10 +135,14 @@
 
     <div class="hero-unit">
 
-    	<br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+    	<br><br><br><br><br><br><br><br><br><br><br><br>
+
+    	Volume<br>
+    	<input id="volume" type="range" min="0" max="1" step="0.1" value="0.5"/>
+
+    	<br>
 
 		<button class="btn btn-large btn-primary" type="button" onclick="start()">Start</button>
-
 		<button class="btn btn-large btn-primary" type="button" onclick="remove_note()">Remove Note</button>
 
 	</div>
@@ -158,13 +162,28 @@
 
 		var notes = ["A", "B", "C#", "D", "E", "F#", "G#"];
 
+		var gainNode = myAudioContext.createGainNode();
+		var source1 = myAudioContext.createOscillator();
+		source1.type = 1; 
+		var source2 = myAudioContext.createOscillator();
+		source2.type = 1; 
+
+		source1.connect(gainNode);
+		source2.connect(gainNode);
+
+		gainNode.connect(myAudioContext.destination);
+
+		document.getElementById('volume').addEventListener('change', function() {
+		    gainNode.gain.value = this.value;
+		});
+
 		var timer = new interval(1000, function() {
-	    	playNote(noteToFrequency(notes[Math.floor(Math.random() * notes.length)]), 1);
+	    	playNote(source1, noteToFrequency(notes[Math.floor(Math.random() * notes.length)]), 1);
 	    });
 		
 	    var timer2 = new interval(1000, function() {
-	    	playNote(noteToFrequency("A"), 1);
-	    });
+	    	playNote(source2, noteToFrequency("A"), 1);
+	    }); 
 
 	</script>
 
