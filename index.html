@@ -3,6 +3,11 @@
 	<head>
 		<title>Interactive Computer Music</title>
 
+		<!--Vexflow-->
+		<script src="js/jquery-1.6.2.min.js"></script>
+		<script src="js/vexflow.js"></script>
+	    <script src="bootstrap/js/bootstrap.min.js"></script>
+
 		<link href="style.css" rel="stylesheet" type="text/css">
 
 		<script language="javascript">
@@ -115,6 +120,43 @@
 			 	notes.pop();
 			 }
 
+			 /*
+			  * Draw notes on the canvas.
+			  */
+			function draw_note(note) {
+			  // Clear the staff.
+			  ctx.clear();
+		      var stave = new Vex.Flow.Stave(10, 0, 100);
+		      stave.addClef("treble").setContext(ctx).draw();
+		      // Convert note.
+			  var new_note = new Vex.Flow.StaveNote({ keys: [note.toLowerCase() + "/4"], duration: "q" });
+			  var staff_notes = [];
+			  // Play note.
+			  if (note.length == 1) {
+			    staff_notes[0] = new_note;
+			  }
+			  else {
+			  	if (note.substring(1) == "#") {
+			  		staff_notes[0] = new_note.addAccidental(0, new Vex.Flow.Accidental("#"));
+			  	}
+			  	else {
+			  		staff_notes[0] = new_note.addAccidental(0, new Vex.Flow.Accidental("b"));
+			  	}
+			  }
+			  // Create a voice in 1/4 for now.
+			  var voice = new Vex.Flow.Voice({
+			    num_beats: 1,
+			    beat_value: 4,
+			    resolution: Vex.Flow.RESOLUTION
+			  });
+			  // Add notes to voice
+			  voice.addTickables(staff_notes);
+			  // Format and justify the notes to 500 pixels
+			  var formatter = new Vex.Flow.Formatter().joinVoices([voice]).format([voice], 500);
+			  // Render voice
+			  voice.draw(ctx, stave);
+			}
+
 		</script>
 
 		<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
@@ -122,9 +164,6 @@
 	</head>
 
 	<body>
-
-		<script src="http://code.jquery.com/jquery.js"></script>
-	    <script src="bootstrap/js/bootstrap.min.js"></script>
 
 	    <script langugae="javascript">
 
@@ -136,17 +175,12 @@
 
 	    <div class="hero-unit">
 
-	    	<br><br><br><br>
-
 	    	<p id="textelement">Note: </p>
-
-	    	<br><br><br><br><br><br><br><br>
-
+	    	<canvas id="score" width="700" height="100"></canvas>
+	    	<br>
 	    	Volume<br>
 	    	<input id="volume" type="range" min="0" max="1" step="0.001" value="0.5"/>
-
 	    	<br>
-
 			<button class="btn btn-large btn-primary" type="button" onclick="start()">Start</button>
 			<button class="btn btn-large btn-primary" type="button" onclick="remove_note()">Remove Note</button>
 
@@ -155,8 +189,6 @@
 		<br>
 
 		&nbsp;&nbsp;A project by Peter Washington at Rice University.
-
-		<canvas width="700" height="100">Hi</canvas>
 
 		<script langugae="javascript">
 
@@ -188,11 +220,19 @@
 				var note = notes[Math.floor(Math.random() * notes.length)];
 		    	playNote(source1, noteToFrequency(note), 1);
 		    	document.getElementById("textelement").innerHTML = "Note: " + note;
+		    	draw_note(note);
 		    });
 
 		    var timer2 = new interval(1000, function() {
 		    	playNote(source2, noteToFrequency("A"), 1);
 		    }); 
+
+		    // Music notation.
+		    var canvas = $("#score")[0];
+		    var renderer = new Vex.Flow.Renderer(canvas, Vex.Flow.Renderer.Backends.CANVAS);
+		    var ctx = renderer.getContext();
+		    var stave = new Vex.Flow.Stave(10, 0, 100);
+		    stave.addClef("treble").setContext(ctx).draw();
 
 		</script>
 
