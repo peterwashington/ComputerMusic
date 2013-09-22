@@ -19,12 +19,8 @@
 			 * Plays a specified note for a certain length of time.
 			 */
 			function playNote(source, note, length) {
-				//var source = myAudioContext.createOscillator();
-				//source.type = 1; 
 				source.frequency.value = note;
-				//source.connect(myAudioContext.destination);
 				source.start(myAudioContext.currentTime);
-				//source.stop(myAudioContext.currentTime + length);
 			}
 
 			/*
@@ -64,44 +60,82 @@
 			 */
 			 function noteToFrequency(note) {
 			 	switch (note) {
-			 		case "C":
+			 		case "C4":
 			 			return 261.63;
-			 		case "C#":
+			 		case "C#4":
 			 			return 277.18;
-			 		case "Db":
+			 		case "Db4":
 			 			return 277.18;
-			 		case "D":
+			 		case "D4":
 			 			return 293.66;
-			 		case "D#":
+			 		case "D#4":
 			 			return 311.13;
-			 		case "Eb":
+			 		case "Eb4":
 			 			return 311.13;
-			 		case "E":
+			 		case "E4":
 			 			return 329.63;
-			 		case "Fb":
+			 		case "Fb4":
 			 			return 329.63;
-			 		case "F":
+			 		case "F4":
 			 			return 349.23;
-			 		case "F#":
+			 		case "F#4":
 			 			return 369.99;
-			 		case "Gb":
+			 		case "Gb4":
 			 			return 369.99;
-			 		case "G":
+			 		case "G4":
 			 			return 392.00;
-			 		case "G#":
+			 		case "G#4":
 			 			return 415.30;
-			 		case "Ab":
+			 		case "Ab4":
 			 			return 415.30;
-			 		case "A":
+			 		case "A4":
 			 			return 440.00;
-			 		case "A#":
+			 		case "A#4":
 			 			return 466.16;
-			 		case "Bb":
+			 		case "Bb4":
 			 			return 466.16;
-			 		case "B":
+			 		case "B4":
 			 			return 493.88;
-			 		case "Cb":
+			 		case "Cb4":
 			 			return 493.88;
+			 		case "C5":
+			 			return 523.25;
+			 		case "C#5":
+			 			return 554.37;
+			 		case "Db5":
+			 			return 554.37;
+			 		case "D5":
+			 			return 587.33;
+			 		case "D#5":
+			 			return 622.25;
+			 		case "Eb5":
+			 			return 622.25;
+			 		case "E5":
+			 			return 659.26;
+			 		case "Fb5":
+			 			return 659.26;
+			 		case "F5":
+			 			return 698.46;
+			 		case "F#5":
+			 			return 739.99;
+			 		case "Gb5":
+			 			return 739.99;
+			 		case "G5":
+			 			return 783.99;
+			 		case "G#5":
+			 			return 830.61;
+			 		case "Ab5":
+			 			return 830.61;
+			 		case "A5":
+			 			return 880.00;
+			 		case "A#5":
+			 			return 932.33;
+			 		case "Bb5":
+			 			return 932.33;
+			 		case "B5":
+			 			return 987.77;
+			 		case "Cb5":
+			 			return 987.77;
 			 	}
 			 }
 
@@ -114,10 +148,24 @@
 			 }
 
 			 /*
-			  * Remove a note from the list of available notes.
+			  *Change the chord to A.
 			  */
-			 function remove_note() {
-			 	notes.pop();
+			 function a_chord() {
+			 	chord = "A";
+			 }
+
+			 /*
+			  *Change the chord to D.
+			  */
+			 function d_chord() {
+			 	chord = "D";
+			 }
+
+			 /*
+			  *Change the chord to E.
+			  */
+			 function e_chord() {
+			 	chord = "E";
 			 }
 
 			 /*
@@ -129,14 +177,19 @@
 		      var stave = new Vex.Flow.Stave(10, 0, 100);
 		      stave.addClef("treble").setContext(ctx).draw();
 		      // Convert note.
-			  var new_note = new Vex.Flow.StaveNote({ keys: [note.toLowerCase() + "/4"], duration: "q" });
+		      if (note.length == 2) {
+		      	var new_note = new Vex.Flow.StaveNote({ keys: [note.toLowerCase().substring(0, 1) + "/" + note.substring(1, 2)], duration: "q" });
+		      }
+			  else {
+			  	var new_note = new Vex.Flow.StaveNote({ keys: [note.toLowerCase().substring(0, 2) + "/" + note.substring(2, 3)], duration: "q" });
+			  }
 			  var staff_notes = [];
 			  // Play note.
-			  if (note.length == 1) {
+			  if (note.length == 2) {
 			    staff_notes[0] = new_note;
 			  }
 			  else {
-			  	if (note.substring(1) == "#") {
+			  	if (note.substring(1, 2) === "#") {
 			  		staff_notes[0] = new_note.addAccidental(0, new Vex.Flow.Accidental("#"));
 			  	}
 			  	else {
@@ -156,6 +209,7 @@
 			  // Render voice
 			  voice.draw(ctx, stave);
 			}
+
 
 		</script>
 
@@ -179,11 +233,12 @@
 	    	<canvas id="score" width="700" height="100"></canvas>
 	    	<br>
 	    	Volume<br>
-	    	<input id="volume" type="range" min="0" max="1" step="0.001" value="0.5"/>
+	    	<input id="volume" type="range" min="0.0" max="0.1" step="0.001" value="0.05"/>
 	    	<br>
 			<button class="btn btn-large btn-primary" type="button" onclick="start()">Start</button>
-			<button class="btn btn-large btn-primary" type="button" onclick="remove_note()">Remove Note</button>
-
+			<button class="btn btn-large btn-primary" type="button" onclick="a_chord()">A Chord</button>
+			<button class="btn btn-large btn-primary" type="button" onclick="d_chord()">D Chord</button>
+			<button class="btn btn-large btn-primary" type="button" onclick="e_chord()">E Chord</button>
 		</div>
 
 		<br>
@@ -199,32 +254,58 @@
 				alert("Sorry - this app requires an updated version of Chrome or Safari!");
 			}
 
-			var notes = ["A", "B", "C#", "D", "E", "F#", "G#"];
+			var notesA = ["C#4", "E4", "A5", "C#5", "E5"];
+			var notesD = ["F#4", "A4", "D5", "F#5", "A5"];
+			var notesE = ["G#4", "B4", "E5", "G#5", "B5"];
 
+			var chord = "A";
+
+			// Initialization
 			var gainNode = myAudioContext.createGainNode();
 			var source1 = myAudioContext.createOscillator();
-			source1.type = 1; 
+			source1.type = 2; 
 			var source2 = myAudioContext.createOscillator();
-			source2.type = 1; 
-
+			source2.type = 2; 
 			source1.connect(gainNode);
 			source2.connect(gainNode);
+			gainNode.gain.value = 0.05;
+			gainNode.connect(myAudioContext.destination); 
+			var ticks = 0;
 
-			gainNode.connect(myAudioContext.destination);
+			// NEW INITIALIZATION
 
 			document.getElementById('volume').addEventListener('change', function() {
 			    gainNode.gain.value = this.value;
 			});
 
 			var timer = new interval(1000, function() {
-				var note = notes[Math.floor(Math.random() * notes.length)];
-		    	playNote(source1, noteToFrequency(note), 1);
-		    	document.getElementById("textelement").innerHTML = "Note: " + note;
-		    	draw_note(note);
+				var note1 = "";
+				var note2 = "";
+				if (chord === "A") {
+					note1 = notesA[Math.floor(Math.random() * notesA.length)];
+					note2 = "A4";
+				}
+				else if (chord === "D") {
+					note1 = notesD[Math.floor(Math.random() * notesD.length)];
+					note2 = "D4";
+				}
+				else if (chord === "E") {
+					note1 = notesE[Math.floor(Math.random() * notesE.length)];
+					note2 = "E4";
+				}
+				else {
+					note1 = notesA[Math.floor(Math.random() * notesA.length)];
+					note2 = "A4";
+				}
+		    	playNote(source1, noteToFrequency(note1), 1);
+		    	playNote(source2, noteToFrequency(note2), 1);
+		    	document.getElementById("textelement").innerHTML = "Melody note: " + note1;
+		    	draw_note(note1);
+		    	ticks += 1;
 		    });
 
 		    var timer2 = new interval(1000, function() {
-		    	playNote(source2, noteToFrequency("A"), 1);
+		    	// Other things here...eventually.
 		    }); 
 
 		    // Music notation.
