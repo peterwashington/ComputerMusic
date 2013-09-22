@@ -150,22 +150,36 @@
 			 /*
 			  *Change the chord to A.
 			  */
-			 function a_chord() {
+			 function a_major_chord() {
 			 	chord = "A";
+			 }
+
+			 /*
+			  *Change the chord to B minor.
+			  */
+			 function b_minor_chord() {
+			 	chord = "Bm";
 			 }
 
 			 /*
 			  *Change the chord to D.
 			  */
-			 function d_chord() {
+			 function d_major_chord() {
 			 	chord = "D";
 			 }
 
 			 /*
 			  *Change the chord to E.
 			  */
-			 function e_chord() {
+			 function e_major_chord() {
 			 	chord = "E";
+			 }
+
+			 /*
+			  *Change the chord to E.
+			  */
+			 function f_sharp_minor_chord() {
+			 	chord = "F#m";
 			 }
 
 			 /*
@@ -236,9 +250,11 @@
 	    	<input id="volume" type="range" min="0.0" max="0.1" step="0.001" value="0.05"/>
 	    	<br>
 			<button class="btn btn-large btn-primary" type="button" onclick="start()">Start</button>
-			<button class="btn btn-large btn-primary" type="button" onclick="a_chord()">A Chord</button>
-			<button class="btn btn-large btn-primary" type="button" onclick="d_chord()">D Chord</button>
-			<button class="btn btn-large btn-primary" type="button" onclick="e_chord()">E Chord</button>
+			<button class="btn btn-large btn-primary" type="button" onclick="a_major_chord()">A Major Chord</button>
+			<button class="btn btn-large btn-primary" type="button" onclick="b_minor_chord()">B Minor Chord</button>
+			<button class="btn btn-large btn-primary" type="button" onclick="d_major_chord()">D Major Chord</button>
+			<button class="btn btn-large btn-primary" type="button" onclick="e_major_chord()">E Major Chord</button>
+			<button class="btn btn-large btn-primary" type="button" onclick="f_sharp_minor_chord()">F# Minor Chord</button>
 		</div>
 
 		<br>
@@ -255,8 +271,10 @@
 			}
 
 			var notesA = ["C#4", "E4", "A5", "C#5", "E5"];
+			var notesBm = ["D4", "F#4", "B5", "D5", "F#5"];
 			var notesD = ["F#4", "A4", "D5", "F#5", "A5"];
 			var notesE = ["G#4", "B4", "E5", "G#5", "B5"];
+			var notesFSm = ["A4", "C#4", "F#5", "A5", "C#5"];
 
 			var chord = "A";
 
@@ -292,6 +310,14 @@
 				else if (chord === "E") {
 					note1 = notesE[Math.floor(Math.random() * notesE.length)];
 					note2 = "E4";
+				}
+				else if (chord === "F#m") {
+					note1 = notesFSm[Math.floor(Math.random() * notesFSm.length)];
+					note2 = "F#4";
+				}
+				else if (chord === "Bm") {
+					note1 = notesBm[Math.floor(Math.random() * notesBm.length)];
+					note2 = "B4";
 				}
 				else {
 					note1 = notesA[Math.floor(Math.random() * notesA.length)];
