@@ -1,0 +1,358 @@
+<html>
+
+	<head>
+		<title>Interactive Computer Music</title>
+
+		<!-- midi.js package -->
+		<script src="./js/MIDI/AudioDetect.js" type="text/javascript"></script>
+		<script src="./js/MIDI/LoadPlugin.js" type="text/javascript"></script>
+		<script src="./js/MIDI/Plugin.js" type="text/javascript"></script>
+		<script src="./js/MIDI/Player.js" type="text/javascript"></script>
+		<script src="./js/Window/DOMLoader.XMLHttp.js" type="text/javascript"></script>
+	 	<script src="./js/Window/DOMLoader.script.js" type="text/javascript"></script>
+		<!-- extras -->
+		<script src="./inc/Base64.js" type="text/javascript"></script>
+		<script src="./inc/base64binary.js" type="text/javascript"></script>
+		<!--Vexflow-->
+		<script src="js/jquery-1.6.2.min.js"></script>
+		<script src="js/vexflow.js"></script>
+	    <script src="bootstrap/js/bootstrap.min.js"></script>
+
+		<link href="style.css" rel="stylesheet" type="text/css">
+
+		<script language="javascript">
+
+			/*
+			 * Inputs: note   --- a string of the note to play, such as 'A'
+			 * 		   length --- the number of seconds to play the note
+			 *
+			 * Plays a specified note for a certain length of time.
+			 */
+			function playNote(source, note, length) {
+				source.frequency.value = note;
+				source.start(myAudioContext.currentTime);
+			}
+
+			/*
+			 * Inputs: duration --- the interval at which to call the function
+			 * 		   fn       --- the function to call
+			 *
+			 * Replaces setTimeout() with a more accurate version.
+			 */
+			function interval(duration, fn) {
+				this.baseline = undefined
+				this.run = function() {
+				    if (this.baseline === undefined) {
+				    	this.baseline = new Date().getTime();
+				    }
+				    fn();
+				    var end = new Date().getTime();
+				    this.baseline += duration;
+				    var nextTick = duration - (end - this.baseline);
+				    if (nextTick < 0) {
+				      nextTick = 0;
+				    }
+				    (function(i) {
+				        i.timer = setTimeout(function() {
+				        	i.run(end);
+				      	}, nextTick)
+				    }) (this)
+			  	}
+				this.stop = function() {
+			   		clearTimeout(this.timer);
+			 	}
+			}
+
+			/*
+			 * Inputs: note --- the string representation of a note
+			 *
+			 * Returns the frequency of the note.
+			 */
+			 function noteToMIDI(note) {
+			 	switch (note) {
+			 		case "C4":
+			 			return 48;
+			 		case "C#4":
+			 			return 49;
+			 		case "Db4":
+			 			return 49;
+			 		case "D4":
+			 			return 50;
+			 		case "D#4":
+			 			return 51;
+			 		case "Eb4":
+			 			return 51;
+			 		case "E4":
+			 			return 52;
+			 		case "Fb4":
+			 			return 52;
+			 		case "F4":
+			 			return 53;
+			 		case "F#4":
+			 			return 54;
+			 		case "Gb4":
+			 			return 54;
+			 		case "G4":
+			 			return 55;
+			 		case "G#4":
+			 			return 56;
+			 		case "Ab4":
+			 			return 56;
+			 		case "A4":
+			 			return 57;
+			 		case "A#4":
+			 			return 58;
+			 		case "Bb4":
+			 			return 58;
+			 		case "B4":
+			 			return 59;
+			 		case "Cb4":
+			 			return 59;
+			 		case "C5":
+			 			return 60;
+			 		case "C#5":
+			 			return 61;
+			 		case "Db5":
+			 			return 61;
+			 		case "D5":
+			 			return 62;
+			 		case "D#5":
+			 			return 63;
+			 		case "Eb5":
+			 			return 63;
+			 		case "E5":
+			 			return 64;
+			 		case "Fb5":
+			 			return 64;
+			 		case "F5":
+			 			return 65;
+			 		case "F#5":
+			 			return 66;
+			 		case "Gb5":
+			 			return 66;
+			 		case "G5":
+			 			return 67;
+			 		case "G#5":
+			 			return 68;
+			 		case "Ab5":
+			 			return 68;
+			 		case "A5":
+			 			return 69;
+			 		case "A#5":
+			 			return 70;
+			 		case "Bb5":
+			 			return 70;
+			 		case "B5":
+			 			return 71;
+			 		case "Cb5":
+			 			return 71;
+			 	}
+			 }
+
+			 /*
+			  * Start the music.
+			  */
+			 function start() {
+			 	timer.run();
+		    	timer2.run();
+			 }
+
+			 /*
+			  *Change the chord to A.
+			  */
+			 function a_major_chord() {
+			 	chord = "A";
+			 }
+
+			 /*
+			  *Change the chord to B minor.
+			  */
+			 function b_minor_chord() {
+			 	chord = "Bm";
+			 }
+
+			 /*
+			  *Change the chord to D.
+			  */
+			 function d_major_chord() {
+			 	chord = "D";
+			 }
+
+			 /*
+			  *Change the chord to E.
+			  */
+			 function e_major_chord() {
+			 	chord = "E";
+			 }
+
+			 /*
+			  *Change the chord to E.
+			  */
+			 function f_sharp_minor_chord() {
+			 	chord = "F#m";
+			 }
+
+			 /*
+			  * Draw notes on the canvas.
+			  */
+			function draw_note(note) {
+			  // Clear the staff.
+			  ctx.clear();
+		      var stave = new Vex.Flow.Stave(10, 0, 100);
+		      stave.addClef("treble").setContext(ctx).draw();
+		      // Convert note.
+		      if (note.length == 2) {
+		      	var new_note = new Vex.Flow.StaveNote({ keys: [note.toLowerCase().substring(0, 1) + "/" + note.substring(1, 2)], duration: "q" });
+		      }
+			  else {
+			  	var new_note = new Vex.Flow.StaveNote({ keys: [note.toLowerCase().substring(0, 2) + "/" + note.substring(2, 3)], duration: "q" });
+			  }
+			  var staff_notes = [];
+			  // Play note.
+			  if (note.length == 2) {
+			    staff_notes[0] = new_note;
+			  }
+			  else {
+			  	if (note.substring(1, 2) === "#") {
+			  		staff_notes[0] = new_note.addAccidental(0, new Vex.Flow.Accidental("#"));
+			  	}
+			  	else {
+			  		staff_notes[0] = new_note.addAccidental(0, new Vex.Flow.Accidental("b"));
+			  	}
+			  }
+			  // Create a voice in 1/4 for now.
+			  var voice = new Vex.Flow.Voice({
+			    num_beats: 1,
+			    beat_value: 4,
+			    resolution: Vex.Flow.RESOLUTION
+			  });
+			  // Add notes to voice
+			  voice.addTickables(staff_notes);
+			  // Format and justify the notes to 500 pixels
+			  var formatter = new Vex.Flow.Formatter().joinVoices([voice]).format([voice], 500);
+			  // Render voice
+			  voice.draw(ctx, stave);
+			}
+
+
+		</script>
+
+		<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
+
+	</head>
+
+	<body>
+
+	    <script langugae="javascript">
+
+	    </script>
+
+	    <h1>Interactive Computer Music</h1>
+
+		<br>
+
+	    <div class="hero-unit">
+
+	    	<p id="textelement">Note: </p>
+	    	<canvas id="score" width="700" height="100"></canvas>
+	    	<br>
+	    	Volume<br>
+	    	<input id="volume" type="range" min="0.0" max="0.1" step="0.001" value="0.05"/>
+	    	<br>
+			<button class="btn btn-large btn-primary" type="button" onclick="start()">Start</button>
+			<button class="btn btn-large btn-primary" type="button" onclick="a_major_chord()">A Major Chord</button>
+			<button class="btn btn-large btn-primary" type="button" onclick="b_minor_chord()">B Minor Chord</button>
+			<button class="btn btn-large btn-primary" type="button" onclick="d_major_chord()">D Major Chord</button>
+			<button class="btn btn-large btn-primary" type="button" onclick="e_major_chord()">E Major Chord</button>
+			<button class="btn btn-large btn-primary" type="button" onclick="f_sharp_minor_chord()">F# Minor Chord</button>
+		</div>
+
+		<br>
+
+		&nbsp;&nbsp;A project by Peter Washington at Rice University.
+
+		<script langugae="javascript">
+
+			if ('webkitAudioContext' in window) {
+	    		var myAudioContext = new webkitAudioContext();
+			}
+			else {
+				alert("Sorry - this app requires an updated version of Chrome or Safari!");
+			}
+
+			var notesA = ["C#4", "E4", "A5", "C#5", "E5"];
+			var notesBm = ["D4", "F#4", "B5", "D5", "F#5"];
+			var notesD = ["F#4", "A4", "D5", "F#5", "A5"];
+			var notesE = ["G#4", "B4", "E5", "G#5", "B5"];
+			var notesFSm = ["A4", "C#4", "F#5", "A5", "C#5"];
+
+			var chord = "A";
+
+			// Initialization
+			var gainNode = myAudioContext.createGainNode();
+			var source1 = myAudioContext.createOscillator();
+			source1.type = 2; 
+			var source2 = myAudioContext.createOscillator();
+			source2.type = 2; 
+			source1.connect(gainNode);
+			source2.connect(gainNode);
+			gainNode.gain.value = 0.05;
+			gainNode.connect(myAudioContext.destination); 
+			var ticks = 0;
+
+			// NEW INITIALIZATION
+
+			document.getElementById('volume').addEventListener('change', function() {
+			    gainNode.gain.value = this.value;
+			});
+
+			var timer = new interval(1000, function() {
+				var note1 = "";
+				var note2 = "";
+				if (chord === "A") {
+					note1 = notesA[Math.floor(Math.random() * notesA.length)];
+					note2 = "A4";
+				}
+				else if (chord === "D") {
+					note1 = notesD[Math.floor(Math.random() * notesD.length)];
+					note2 = "D4";
+				}
+				else if (chord === "E") {
+					note1 = notesE[Math.floor(Math.random() * notesE.length)];
+					note2 = "E4";
+				}
+				else if (chord === "F#m") {
+					note1 = notesFSm[Math.floor(Math.random() * notesFSm.length)];
+					note2 = "F#4";
+				}
+				else if (chord === "Bm") {
+					note1 = notesBm[Math.floor(Math.random() * notesBm.length)];
+					note2 = "B4";
+				}
+				else {
+					note1 = notesA[Math.floor(Math.random() * notesA.length)];
+					note2 = "A4";
+				}
+		    	playNote(source1, noteToFrequency(note1), 1);
+		    	playNote(source2, noteToFrequency(note2), 1);
+		    	document.getElementById("textelement").innerHTML = "Melody note: " + note1;
+		    	draw_note(note1);
+		    	ticks += 1;
+		    });
+
+		    var timer2 = new interval(1000, function() {
+		    	// Other things here...eventually.
+		    }); 
+
+		    // Music notation.
+		    var canvas = $("#score")[0];
+		    var renderer = new Vex.Flow.Renderer(canvas, Vex.Flow.Renderer.Backends.CANVAS);
+		    var ctx = renderer.getContext();
+		    var stave = new Vex.Flow.Stave(10, 0, 100);
+		    stave.addClef("treble").setContext(ctx).draw();
+
+		</script>
+
+	</body>
+
+</html>
