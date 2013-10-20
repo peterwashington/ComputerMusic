@@ -50,7 +50,7 @@
 		      	}, nextTick)
 		    }) (this)
 	  	}
-		this.stop = function() {
+		this.end = function() {
 	   		clearTimeout(this.timer);
 	 	}
 	}
@@ -142,6 +142,28 @@
 	 	}
 	 }
 
+ 	/*
+	 * Inputs: midi --- the midi representation of a note
+	 *
+	 * Returns the string representation of the note.
+	 */
+	function MIDIToNote(midi) {
+	 	switch (note) {
+	 		case 48:
+	 			return "C4";
+	 		case 52:
+	 			return "E4";
+	 		case 55:
+	 			return "G4";
+	 		case 60:
+	 			return "C5";
+	 		case 64:
+	 			return "E5";
+	 		case 67:
+	 			return "G5";
+	 	}
+	}
+
 	 /*
 	  * Draw notes on the canvas.
 	  */
@@ -184,6 +206,20 @@
 	  voice.draw(ctx, stave);
 	}
 
+	/*
+	 * Start our machine learning.
+	 */
+ 	function start() {
+ 		timer.run();
+ 	}
+
+ 	/*
+ 	 * Stop the machine learning.
+ 	 */
+ 	function stop() {
+ 		timer.end();
+ 	}
+
  </script>
 
  <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
@@ -221,6 +257,11 @@
 		<canvas id="score" width="700" height="100"></canvas>
 	</div>
 
+	<div id="controls">
+		<button class="btn btn-large btn-primary" type="button" onclick="start()">Start</button>
+		<button class="btn btn-large btn-primary" type="button" onclick="stop()">Stop</button>
+	</div>
+
   </font>
 </div>
 </div>
@@ -230,62 +271,47 @@
 
 <script type="text/javascript">
 
+// Which type of machine learning are we using?
+// 0 = Reinforcement Learning
+// 1 = Supervised Learning
+var learning_method = 0;
+
+// Which algorithm are we using?
+// 0 = Reinforcement Learning (will find reinforcement subsets later)
+var algorithm = 0;
+
 // Music notation.
 var canvas = $("#score")[0];
 var renderer = new Vex.Flow.Renderer(canvas, Vex.Flow.Renderer.Backends.CANVAS);
 var ctx = renderer.getContext();
 var stave = new Vex.Flow.Stave(10, 0, 100);
-var note_queue = [];
-var note_index = 0;
+var notes = ["C4", "E4", "G4", "C5", "E5", "G5"];
 
 var draw_canvas = function() {
 	stave.addClef("treble").setContext(ctx).draw();
 };
 
 var timer = new interval(1000, function() {
-	if (note_queue.length >= 1) {
-		draw_note(note_queue[note_index+1]);
-		note_index += 1;
-	}
-});
- 
+	var noteName = notes[Math.floor(Math.random() * notes.length)];
+	var note = noteToMIDI(noteName); // the MIDI note
+	var velocity = 127; // how hard the note hits
+	MIDI.noteOn(0, note, velocity, 0);
+	draw_note(noteName);
+}); 
 
 $(window).load(function() {
+	$('#controls').hide();
     MIDI.loadPlugin({
 		soundfontUrl: "./soundfont/",
 		instruments: [ "acoustic_grand_piano", "acoustic_grand_piano" ],
 		callback: function() {
-			$('#loading').hide();
+			$('#loading').remove();
+			$('#controls').show();
 			draw_canvas();
-			var notes = ["C4", "E4", "G4", "C5", "E5", "G5"];
-
-			//MIDI.programChange(0, 0);
-			//MIDI.programChange(1, 118);
-
-			timer.run();
-
-			for (var n = 0; n < 400; n++) {
-				var delay = n; // play one note every second
-				//var note = noteToMIDI(notes[Math.floor(Math.random() * notesA.length)]); // the MIDI note
-				var noteName = notes[Math.floor(Math.random() * notes.length)]
-				note = noteToMIDI(noteName); // the MIDI note
-
-				note_queue.push(noteName);
-				if (n == 0) {
-					draw_note(note_queue[note_index]);
-					note_index += 1;
-				}
-				var velocity = 127; // how hard the note hits
-				// play the note
-				MIDI.noteOn(0, note, velocity, delay);
-				// play the some note 4-steps up
-				//MIDI.noteOn(1, note + 6, velocity, delay);
-			}
-	
+			//start();
 		}
 	});
 });
-
 
 
 </script>
