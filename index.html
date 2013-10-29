@@ -55,115 +55,6 @@
 	 	}
 	}
 
-
- 	/*
-	 * Inputs: note --- the string representation of a note
-	 *
-	 * Returns the frequency of the note.
-	 */
-	 function noteToMIDI(note) {
-	 	switch (note) {
-	 		case "C4":
-	 			return 48;
-	 		case "C#4":
-	 			return 49;
-	 		case "Db4":
-	 			return 49;
-	 		case "D4":
-	 			return 50;
-	 		case "D#4":
-	 			return 51;
-	 		case "Eb4":
-	 			return 51;
-	 		case "E4":
-	 			return 52;
-	 		case "Fb4":
-	 			return 52;
-	 		case "F4":
-	 			return 53;
-	 		case "F#4":
-	 			return 54;
-	 		case "Gb4":
-	 			return 54;
-	 		case "G4":
-	 			return 55;
-	 		case "G#4":
-	 			return 56;
-	 		case "Ab4":
-	 			return 56;
-	 		case "A4":
-	 			return 57;
-	 		case "A#4":
-	 			return 58;
-	 		case "Bb4":
-	 			return 58;
-	 		case "B4":
-	 			return 59;
-	 		case "Cb4":
-	 			return 59;
-	 		case "C5":
-	 			return 60;
-	 		case "C#5":
-	 			return 61;
-	 		case "Db5":
-	 			return 61;
-	 		case "D5":
-	 			return 62;
-	 		case "D#5":
-	 			return 63;
-	 		case "Eb5":
-	 			return 63;
-	 		case "E5":
-	 			return 64;
-	 		case "Fb5":
-	 			return 64;
-	 		case "F5":
-	 			return 65;
-	 		case "F#5":
-	 			return 66;
-	 		case "Gb5":
-	 			return 66;
-	 		case "G5":
-	 			return 67;
-	 		case "G#5":
-	 			return 68;
-	 		case "Ab5":
-	 			return 68;
-	 		case "A5":
-	 			return 69;
-	 		case "A#5":
-	 			return 70;
-	 		case "Bb5":
-	 			return 70;
-	 		case "B5":
-	 			return 71;
-	 		case "Cb5":
-	 			return 71;
-	 	}
-	 }
-
- 	/*
-	 * Inputs: midi --- the midi representation of a note
-	 *
-	 * Returns the string representation of the note.
-	 */
-	function MIDIToNote(midi) {
-	 	switch (note) {
-	 		case 48:
-	 			return "C4";
-	 		case 52:
-	 			return "E4";
-	 		case 55:
-	 			return "G4";
-	 		case 60:
-	 			return "C5";
-	 		case 64:
-	 			return "E5";
-	 		case 67:
-	 			return "G5";
-	 	}
-	}
-
 	 /*
 	  * Draw notes on the canvas.
 	  */
@@ -220,6 +111,9 @@
  		timer.end();
  	}
 
+ 	/*
+ 	 * Generic reinforcement machine learning algorithm for now.
+ 	 */
  	function reinforcement_learning(state, validActions) {
  		var nextNote = validActions[Math.floor(Math.random() * validActions.length)];
  		state.push(nextNote);
@@ -306,15 +200,18 @@ var timer = new interval(1000, function() {
 	if (learning_method === 0) {
 		noteName = reinforcement_learning(state, notes);
 		console.log(state);
+		console.log(MIDI.keyToNote["A0"]);
+		console.log(MIDI.noteToKey["21"]);
 	}
 	// Get the next note via supervised machine learning.
 	if (learning_method === 1) {
 		// Do stuff.
 	}
-	var note = noteToMIDI(noteName); // the MIDI note
+	var note = MIDI.keyToNote[noteName]; // the MIDI note
 	var velocity = 127; // how hard the note hits
 	MIDI.noteOn(0, note, velocity, 0);
 	draw_note(noteName);
+	MIDI.chordOn(1, [48,51,54], velocity, 0);
 }); 
 
 $(window).load(function() {
