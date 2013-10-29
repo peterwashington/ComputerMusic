@@ -58,7 +58,7 @@
 	 /*
 	  * Draw notes on the canvas.
 	  */
-	function draw_note(note) {
+	function draw_state(note) {
 	  // Clear the staff.
 	  ctx.clear();
       var stave = new Vex.Flow.Stave(10, 0, 100);
@@ -73,14 +73,14 @@
 	  var staff_notes = [];
 	  // Play note.
 	  if (note.length == 2) {
-	    staff_notes[0] = new_note;
+	    staff_notes.push(new_note);
 	  }
 	  else {
 	  	if (note.substring(1, 2) === "#") {
-	  		staff_notes[0] = new_note.addAccidental(0, new Vex.Flow.Accidental("#"));
+	  		staff_notes.push(new_note.addAccidental(0, new Vex.Flow.Accidental("#")));
 	  	}
 	  	else {
-	  		staff_notes[0] = new_note.addAccidental(0, new Vex.Flow.Accidental("b"));
+	  		staff_notes.push(new_note.addAccidental(0, new Vex.Flow.Accidental("b")));
 	  	}
 	  }
 	  // Create a voice in 1/4 for now.
@@ -112,12 +112,23 @@
  	}
 
  	/*
+ 	 * Info object.
+ 	 */
+	function Info(chord, note) {
+		this.chord = chord;
+		this.note = note;
+	}
+
+ 	/*
  	 * Generic reinforcement machine learning algorithm for now.
  	 */
  	function reinforcement_learning(state, validActions) {
- 		var nextNote = validActions[Math.floor(Math.random() * validActions.length)];
- 		state.push(nextNote);
- 		return nextNote;
+ 		var n = validActions[Math.floor(Math.random() * validActions.length)];
+ 		var nextNote = MIDI.keyToNote[n];
+ 		var nextChord = [MIDI.keyToNote["C4"], MIDI.keyToNote["E4"], MIDI.keyToNote["G4"]];
+ 		var next = new Info(nextChord, nextNote);
+ 		state.push(next);
+ 		return next;
  	}
 
  </script>
@@ -186,19 +197,19 @@ var renderer = new Vex.Flow.Renderer(canvas, Vex.Flow.Renderer.Backends.CANVAS);
 var ctx = renderer.getContext();
 var stave = new Vex.Flow.Stave(10, 0, 100);
 
-// Reinforcement machine learning variables.
-var notes = ["C4", "E4", "G4", "C5", "E5", "G5"];
-var state = [];
-
 var draw_canvas = function() {
 	stave.addClef("treble").setContext(ctx).draw();
 };
 
+// Reinforcement machine learning variables.
+var notes = ["C4", "E4", "G4", "C5", "E5", "G5"];
+var state = [];
+
 var timer = new interval(1000, function() {
-	var noteName = "";
+	var info = new Info(null, null);
 	// Get the next note via reinforcement machine learning.
 	if (learning_method === 0) {
-		noteName = reinforcement_learning(state, notes);
+		info = reinforcement_learning(state, notes);
 		console.log(state);
 		console.log(MIDI.keyToNote["A0"]);
 		console.log(MIDI.noteToKey["21"]);
@@ -207,11 +218,11 @@ var timer = new interval(1000, function() {
 	if (learning_method === 1) {
 		// Do stuff.
 	}
-	var note = MIDI.keyToNote[noteName]; // the MIDI note
-	var velocity = 127; // how hard the note hits
-	MIDI.noteOn(0, note, velocity, 0);
-	draw_note(noteName);
-	MIDI.chordOn(1, [48,51,54], velocity, 0);
+	var note = info.note;
+	var chord = info.chord; 
+	MIDI.noteOn(0, note, 127, 0);
+	MIDI.chordOn(1, chord, 50, 0);
+	draw_state(MIDI.noteToKey[note]);
 }); 
 
 $(window).load(function() {
