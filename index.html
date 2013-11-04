@@ -32,15 +32,18 @@
 	 * Replaces setTimeout() with a more accurate version.
 	 */
 	function interval(duration, fn) {
-		this.baseline = undefined
+
+		this.baseline = undefined;
+		this.duration = duration;
+
 		this.run = function() {
 		    if (this.baseline === undefined) {
 		    	this.baseline = new Date().getTime();
 		    }
 		    fn();
 		    var end = new Date().getTime();
-		    this.baseline += duration;
-		    var nextTick = duration - (end - this.baseline);
+		    this.baseline += this.duration;
+		    var nextTick = this.duration - (end - this.baseline);
 		    if (nextTick < 0) {
 		      nextTick = 0;
 		    }
@@ -50,8 +53,18 @@
 		      	}, nextTick)
 		    }) (this)
 	  	}
+
 		this.end = function() {
 	   		clearTimeout(this.timer);
+	   		this.baseline = undefined;
+	 	}
+
+	 	// Work on this later to be able to add a "tempo" control.
+	 	this.setDuration = function(dur) {
+	 		this.end();
+	 		this.duration = dur;
+	 		this.baseline = new Date().getTime();
+	 		this.run();
 	 	}
 	}
 
@@ -124,8 +137,13 @@
  	 */
  	function reinforcement_learning(state, validNotes, validChords) {
  		var note = validNotes[Math.floor(Math.random() * validNotes.length)];
+ 		var chord = validChords[Math.floor(Math.random() * validChords.length)];
+ 		var chord_contents = chord["Contents"];
  		var nextNote = MIDI.keyToNote[note["Name"]];
- 		var nextChord = [MIDI.keyToNote["C4"], MIDI.keyToNote["E4"], MIDI.keyToNote["G4"]];
+ 		var nextChord = [];
+ 		for (var i = 0; i < chord_contents.length; i++) {
+ 			nextChord.push(MIDI.keyToNote[chord_contents[i]]);
+ 		}
  		var next = new Info(nextChord, nextNote);
  		state.push(next);
  		return next;
@@ -182,6 +200,9 @@
 
 <script type="text/javascript">
 
+// The current tempo (in milliseconds).
+var tempo = 1000;
+
 // Which type of machine learning are we using?
 // 0 = Reinforcement Learning
 // 1 = Supervised Learning
@@ -208,14 +229,20 @@ var notes = [ {"Name": "C4", "Score": 0},
 			  {"Name": "C5", "Score": 0}, 
 			  {"Name": "E5", "Score": 0}, 
 			  {"Name": "G5", "Score": 0} ];
-var chords = [];
+var chords = [ {"Name": "CMaj", "Contents": ["C4", "E4", "G4"], "Score": 0},
+			   {"Name": "DMin", "Contents": ["D4", "F4", "A4"], "Score": 0},
+			   {"Name": "EMin", "Contents": ["E4", "G4", "B4"], "Score": 0},
+			   {"Name": "FMaj", "Contents": ["F4", "A4", "C5"], "Score": 0},
+			   {"Name": "GMaj", "Contents": ["G4", "B4", "D5"], "Score": 0},
+			   {"Name": "AMin", "Contents": ["A4", "C4", "E5"], "Score": 0},
+			   {"Name": "BDim", "Contents": ["B4", "D5", "F5"], "Score": 0} ];
 var state = [];
 
-var timer = new interval(1000, function() {
+var timer = new interval(tempo, function() {
 	var info = new Info(null, null);
 	// Get the next note via reinforcement machine learning.
 	if (learning_method === 0) {
-		info = reinforcement_learning(state, notes, null);
+		info = reinforcement_learning(state, notes, chords);
 		console.log(state);
 	}
 	// Get the next note via supervised machine learning.
@@ -238,11 +265,9 @@ $(window).load(function() {
 			$('#loading').remove();
 			$('#controls').show();
 			draw_canvas();
-			//start();
 		}
 	});
 });
-
 
 </script>
 </body>
