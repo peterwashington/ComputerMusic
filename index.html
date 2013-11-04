@@ -122,9 +122,9 @@
  	/*
  	 * Generic reinforcement machine learning algorithm for now.
  	 */
- 	function reinforcement_learning(state, validActions) {
- 		var n = validActions[Math.floor(Math.random() * validActions.length)];
- 		var nextNote = MIDI.keyToNote[n];
+ 	function reinforcement_learning(state, validNotes, validChords) {
+ 		var note = validNotes[Math.floor(Math.random() * validNotes.length)];
+ 		var nextNote = MIDI.keyToNote[note["Name"]];
  		var nextChord = [MIDI.keyToNote["C4"], MIDI.keyToNote["E4"], MIDI.keyToNote["G4"]];
  		var next = new Info(nextChord, nextNote);
  		state.push(next);
@@ -202,17 +202,21 @@ var draw_canvas = function() {
 };
 
 // Reinforcement machine learning variables.
-var notes = ["C4", "E4", "G4", "C5", "E5", "G5"];
+var notes = [ {"Name": "C4", "Score": 0}, 
+			  {"Name": "E4", "Score": 0}, 
+			  {"Name": "G4", "Score": 0}, 
+			  {"Name": "C5", "Score": 0}, 
+			  {"Name": "E5", "Score": 0}, 
+			  {"Name": "G5", "Score": 0} ];
+var chords = [];
 var state = [];
 
 var timer = new interval(1000, function() {
 	var info = new Info(null, null);
 	// Get the next note via reinforcement machine learning.
 	if (learning_method === 0) {
-		info = reinforcement_learning(state, notes);
+		info = reinforcement_learning(state, notes, null);
 		console.log(state);
-		console.log(MIDI.keyToNote["A0"]);
-		console.log(MIDI.noteToKey["21"]);
 	}
 	// Get the next note via supervised machine learning.
 	if (learning_method === 1) {
