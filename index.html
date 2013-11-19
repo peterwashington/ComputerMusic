@@ -149,6 +149,9 @@
  		return next;
  	}
 
+ 	var note = "";
+ 	var chord = "";
+
  </script>
 
  <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
@@ -185,6 +188,14 @@
 	<div id="display">
 		<h2>What You Hear:</h2>
 		<canvas id="score" width="700" height="100"></canvas>
+		<br>
+		<h5 id="display_note">
+			Note: 
+		</h5>
+		<h5 id="display_chord">
+			Chord: 
+		</h5>
+		Key: C Major
 	</div>
 
 	<div id="controls">
@@ -341,6 +352,10 @@ var draw_canvas = function() {
 	stave.addClef("treble").setContext(ctx).draw();
 };
 
+// Constants for chord mappings
+var noteToDegree = {"C4": 1, "C5": 1, "D4": 2, "D5": 2, "E4": 3, "E5": 3, "F4": 4, "F5": 4,
+					"G4": 5, "G5": 5, "A4": 6, "A5": 6, "B4": 7, "B5": 7};
+
 // Reinforcement machine learning variables.
 var notes = [ {"Name": "C4", "Score": 0}, 
 			  {"Name": "E4", "Score": 0}, 
@@ -348,6 +363,7 @@ var notes = [ {"Name": "C4", "Score": 0},
 			  {"Name": "C5", "Score": 0}, 
 			  {"Name": "E5", "Score": 0}, 
 			  {"Name": "G5", "Score": 0} ];
+
 var chords = [ {"Name": "CMaj", "Contents": ["C4", "E4", "G4"], "Score": 0},
 			   {"Name": "DMin", "Contents": ["D4", "F4", "A4"], "Score": 0},
 			   {"Name": "EMin", "Contents": ["E4", "G4", "B4"], "Score": 0},
@@ -355,7 +371,10 @@ var chords = [ {"Name": "CMaj", "Contents": ["C4", "E4", "G4"], "Score": 0},
 			   {"Name": "GMaj", "Contents": ["G4", "B4", "D5"], "Score": 0},
 			   {"Name": "AMin", "Contents": ["A4", "C4", "E5"], "Score": 0},
 			   {"Name": "BDim", "Contents": ["B4", "D5", "F5"], "Score": 0} ];
+
 var state = [];
+var note = "";
+var chord = "";
 
 var timer = new interval(tempo, function() {
 	var info = new Info(null, null);
@@ -368,11 +387,13 @@ var timer = new interval(tempo, function() {
 	if (learning_method === 1) {
 		// Do stuff.
 	}
-	var note = info.note;
-	var chord = info.chord; 
+	note = info.note;
+	chord = info.chord; 
 	MIDI.noteOn(0, note, 127, 0);
 	MIDI.chordOn(1, chord, 50, 0);
 	draw_state(MIDI.noteToKey[note]);
+	$("#display_note").text("Note: " + MIDI.noteToKey[note] + " (" + noteToDegree[MIDI.noteToKey[note]] + ")");
+	$("#display_chord").text("Chord: (" + MIDI.noteToKey[chord[0]] + ", " + MIDI.noteToKey[chord[1]] + ", " + MIDI.noteToKey[chord[2]] + ")");
 }); 
 
 $(window).load(function() {
