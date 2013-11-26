@@ -71,9 +71,12 @@
 	 /*
 	  * Draw notes on the canvas.
 	  */
-	function draw_state(note) {
+	function draw_state(note, chord) {
 	  // Clear the staff.
 	  ctx.clear();
+	  ctx2.clear();
+
+	  // DRAW NOTE
       var stave = new Vex.Flow.Stave(10, 0, 100);
       stave.addClef("treble").setContext(ctx).draw();
       // Convert note.
@@ -108,6 +111,35 @@
 	  var formatter = new Vex.Flow.Formatter().joinVoices([voice]).format([voice], 500);
 	  // Render voice
 	  voice.draw(ctx, stave);
+
+      // DRAW CHORD
+      var stave2 = new Vex.Flow.Stave(10, 0, 100);
+      stave2.addClef("bass").setContext(ctx2).draw();
+      // Convert note.
+	  var chord_notes = new Array();
+	  for (i = 0; i < chord.length; i++) {
+	  		chord_notes.push(chord[i].toLowerCase().substring(0, 1) + "/" + chord[i].substring(1, 2));
+	  }
+	  console.log(chord_notes);
+	  var new_chord = new Vex.Flow.StaveNote({ keys: chord_notes, duration: "q" });
+	  var staff_chords = [];
+	  // Play note.
+	   staff_chords.push(new_chord);
+	  // Create a voice in 1/4 for now.
+	  var voice2 = new Vex.Flow.Voice({
+	    num_beats: 1,
+	    beat_value: 4,
+	    resolution: Vex.Flow.RESOLUTION
+	  });
+	  // Add notes to voice
+	  voice2.addTickables(staff_chords);
+	  // Format and justify the notes to 500 pixels
+	  var formatter2 = new Vex.Flow.Formatter().joinVoices([voice2]).format([voice2], 500);
+	  // Render voice
+	  voice2.draw(ctx2, stave2);
+	  // Draw the chord
+      var stave2 = new Vex.Flow.Stave(10, 0, 100);
+      stave2.addClef("bass").setContext(ctx2).draw();
 	}
 
 	/*
@@ -187,15 +219,37 @@
 
 	<div id="display">
 		<h2>What You Hear:</h2>
-		<canvas id="score" width="700" height="100"></canvas>
-		<br>
-		<h5 id="display_note">
-			Note: 
-		</h5>
-		<h5 id="display_chord">
-			Chord: 
-		</h5>
-		Key: C Major
+		<table>
+			<tr>
+				<td>
+					<canvas id="score" width="150" height="100"></canvas>
+				</td>
+				<td style="width:250px">
+					<h3 id="display_note">
+						Note: 
+					</h3>
+				</td>
+				<td>
+					<button class="btn btn-large btn-success" type="button">Good</button>
+					<button class="btn btn-large btn-danger" type="button">Bad</button>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<canvas id="score2" width="150" height="100"></canvas>
+				</td>
+				<td style="width:250px">
+					<h3 id="display_chord">
+						Chord: 
+					</h3>
+				</td>
+				<td>
+					<button class="btn btn-large btn-success" type="button">Good</button>
+					<button class="btn btn-large btn-danger" type="button">Bad</button>
+				</td>
+			</tr>
+
+		</table>
 	</div>
 
 	<div id="controls">
@@ -344,12 +398,17 @@ var algorithm = 0;
 
 // Music notation.
 var canvas = $("#score")[0];
+var canvas2 = $("#score2")[0];
 var renderer = new Vex.Flow.Renderer(canvas, Vex.Flow.Renderer.Backends.CANVAS);
+var renderer2 = new Vex.Flow.Renderer(canvas2, Vex.Flow.Renderer.Backends.CANVAS);
 var ctx = renderer.getContext();
+var ctx2 = renderer2.getContext();
 var stave = new Vex.Flow.Stave(10, 0, 100);
+var stave2 = new Vex.Flow.Stave(10, 0, 100);
 
 var draw_canvas = function() {
 	stave.addClef("treble").setContext(ctx).draw();
+	stave2.addClef("bass").setContext(ctx2).draw();
 };
 
 // Constants for chord mappings
@@ -364,13 +423,13 @@ var notes = [ {"Name": "C4", "Score": 0},
 			  {"Name": "E5", "Score": 0}, 
 			  {"Name": "G5", "Score": 0} ];
 
-var chords = [ {"Name": "CMaj", "Contents": ["C4", "E4", "G4"], "Score": 0},
-			   {"Name": "DMin", "Contents": ["D4", "F4", "A4"], "Score": 0},
-			   {"Name": "EMin", "Contents": ["E4", "G4", "B4"], "Score": 0},
-			   {"Name": "FMaj", "Contents": ["F4", "A4", "C5"], "Score": 0},
-			   {"Name": "GMaj", "Contents": ["G4", "B4", "D5"], "Score": 0},
-			   {"Name": "AMin", "Contents": ["A4", "C4", "E5"], "Score": 0},
-			   {"Name": "BDim", "Contents": ["B4", "D5", "F5"], "Score": 0} ];
+var chords = [ {"Name": "C", "Contents": ["C4", "E4", "G4"], "Score": 0},
+			   {"Name": "D", "Contents": ["D4", "F4", "A4"], "Score": 0},
+			   {"Name": "E", "Contents": ["E4", "G4", "B4"], "Score": 0},
+			   {"Name": "F", "Contents": ["F4", "A4", "C5"], "Score": 0},
+			   {"Name": "G", "Contents": ["G4", "B4", "D5"], "Score": 0},
+			   {"Name": "A", "Contents": ["A4", "C4", "E5"], "Score": 0},
+			   {"Name": "B", "Contents": ["B4", "D5", "F5"], "Score": 0} ];
 
 var state = [];
 var note = "";
@@ -391,7 +450,7 @@ var timer = new interval(tempo, function() {
 	chord = info.chord; 
 	MIDI.noteOn(0, note, 127, 0);
 	MIDI.chordOn(1, chord, 50, 0);
-	draw_state(MIDI.noteToKey[note]);
+	draw_state(MIDI.noteToKey[note], [MIDI.noteToKey[chord[0]], MIDI.noteToKey[chord[1]], MIDI.noteToKey[chord[2]] ]);
 	$("#display_note").text("Note: " + MIDI.noteToKey[note] + " (" + noteToDegree[MIDI.noteToKey[note]] + ")");
 	$("#display_chord").text("Chord: (" + MIDI.noteToKey[chord[0]] + ", " + MIDI.noteToKey[chord[1]] + ", " + MIDI.noteToKey[chord[2]] + ")");
 }); 
