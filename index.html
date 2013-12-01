@@ -143,6 +143,20 @@
 	}
 
 	/*
+	 * Load machine learning data from file.
+	 */
+	function load_from_file(input_files) {
+		console.log(input_files[0]);
+
+		var reader = new FileReader();
+		reader.onload = function(e) {
+			console.log("test");
+		    console.log(e.target.result);
+		};
+		reader.readAsText(input_files[0]);
+	}
+
+	/*
 	 * Start our machine learning.
 	 */
  	function start() {
@@ -183,6 +197,7 @@
 
  	var note = "";
  	var chord = "";
+ 	var input_files = [];
 
  </script>
 
@@ -218,7 +233,7 @@
 	</div>
 
 	<div id="display">
-		<h2>What You Hear:</h2>
+		<h2>C Major:</h2>
 		<table>
 			<tr>
 				<td>
@@ -255,8 +270,9 @@
 	<div id="controls">
 		<button class="btn btn-large btn-primary" type="button" onclick="start()">Start</button>
 		<button class="btn btn-large btn-primary" type="button" onclick="stop()">Pause</button>
+		<button class="btn btn-large btn-primary" type="button" onclick="window.location.href='data:text;charset=utf-8,helloWorld'">Save Machine Learning Data</button>
 		<br>
-		<h2>Real Time Input:</h2>
+		<h2>Overall Input:</h2>
 		<table>
 		<tr>
 			<td> C Major (I chord): </td>
@@ -366,13 +382,9 @@
     	</table>
 	</div>
 
-	<div id="instructions">
-		<h2>Instructions:</h2>
-		To start the experiment, press the "Start" button. You may press the "Pause" button at any time to take
-		a break, and then return to the experiment by pressing "Start" again. Information about the note being
-		played will be displayed on the screen. Move the scrollbar associated with each chord to indicate how
-		"favorable" the particular chord is. Check the notes that sound "favorable" with a given chord. You
-		may constantly change your input, and the music system will adapt in real-time.
+	<div id="load_files">
+		<h2>Load Machine Learning Data:</h2>
+		<input type="file" multiple onchange="load_from_file(this.files)">
 	</div>
 
   </font>
@@ -458,7 +470,7 @@ var timer = new interval(tempo, function() {
 $(window).load(function() {
 	$('#controls').hide();
 	$('#display').hide();
-	$('#instructions').hide();
+	$('#load_files').hide();
     MIDI.loadPlugin({
 		soundfontUrl: "./soundfont/",
 		instruments: [ "acoustic_grand_piano", "acoustic_grand_piano" ],
@@ -466,7 +478,7 @@ $(window).load(function() {
 			$('#loading').remove();
 			$('#controls').show();
 			$('#display').show();
-			$('#instructions').show();
+			$('#load_files').show();
 			draw_canvas();
 		}
 	});
