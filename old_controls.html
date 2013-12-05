@@ -1,0 +1,114 @@
+	<div id="controls">
+		<button class="btn btn-large btn-primary" type="button" onclick="start()">Start</button>
+		<button class="btn btn-large btn-primary" type="button" onclick="stop()">Pause</button>
+		<button class="btn btn-large btn-primary" type="button" onclick="window.location.href='data:text;charset=utf-8,helloWorld'">Save Machine Learning Data</button>
+		<br>
+		<h2>Overall Input:</h2>
+		<table>
+		<tr>
+			<td> C Major (I chord): </td>
+			<td> &#32;&#32;Bad<input id="1_chord" type="range" min="0" max="100" step="1" value="50"/>Good&#32;&#32; </td>
+			<td> 
+				<b>
+				<input type="checkbox" name="good_note" value="C/C">C&#32;
+				<input type="checkbox" name="good_note" value="D/C">D&#32;
+				<input type="checkbox" name="good_note" value="E/C">E&#32;
+				<input type="checkbox" name="good_note" value="F/C">F&#32;
+				<input type="checkbox" name="good_note" value="G/C">G&#32;
+				<input type="checkbox" name="good_note" value="A/C">A&#32;
+				<input type="checkbox" name="good_note" value="B/C">B&#32;
+				</b>
+			</td>
+		</tr>
+		<tr>
+			<td> D Minor (ii chord): </td>
+			<td> &#32;&#32;Bad<input id="2_chord" type="range" min="0" max="100" step="1" value="50"/>Good&#32;&#32; </td>
+			<td> 
+				<b>
+				<input type="checkbox" name="good_note" value="C/D">C&#32;
+				<input type="checkbox" name="good_note" value="D/D">D&#32;
+				<input type="checkbox" name="good_note" value="E/D">E&#32;
+				<input type="checkbox" name="good_note" value="F/D">F&#32;
+				<input type="checkbox" name="good_note" value="G/D">G&#32;
+				<input type="checkbox" name="good_note" value="A/D">A&#32;
+				<input type="checkbox" name="good_note" value="B/D">B&#32;
+				</b>
+			</td>
+		</tr>
+		<tr>
+			<td> E Minor (iii chord): </td>
+			<td> &#32;&#32;Bad<input id="3_chord" type="range" min="0" max="100" step="1" value="50"/>Good&#32;&#32; </td>
+			<td> 
+				<b>
+				<input type="checkbox" name="good_note" value="C/E">C&#32;
+				<input type="checkbox" name="good_note" value="D/E">D&#32;
+				<input type="checkbox" name="good_note" value="E/E">E&#32;
+				<input type="checkbox" name="good_note" value="F/E">F&#32;
+				<input type="checkbox" name="good_note" value="G/E">G&#32;
+				<input type="checkbox" name="good_note" value="A/E">A&#32;
+				<input type="checkbox" name="good_note" value="B/E">B&#32;
+				</b>
+			</td>
+		</tr>
+		<tr>
+			<td> F Major (IV chord): </td>
+			<td> &#32;&#32;Bad<input id="4_chord" type="range" min="0" max="100" step="1" value="50"/>Good&#32;&#32; </td>
+			<td> 
+				<b>
+				<input type="checkbox" name="good_note" value="C/F">C&#32;
+				<input type="checkbox" name="good_note" value="D/F">D&#32;
+				<input type="checkbox" name="good_note" value="E/F">E&#32;
+				<input type="checkbox" name="good_note" value="F/F">F&#32;
+				<input type="checkbox" name="good_note" value="G/F">G&#32;
+				<input type="checkbox" name="good_note" value="A/F">A&#32;
+				<input type="checkbox" name="good_note" value="B/F">B&#32;
+				</b>
+			</td>
+		</tr>
+		<tr>
+			<td> G Major (V chord): </td>
+			<td> &#32;&#32;Bad<input id="5_chord" type="range" min="0" max="100" step="1" value="50"/>Good&#32;&#32; </td>
+			<td> 
+				<b>
+				<input type="checkbox" name="good_note" value="C/G">C&#32;
+				<input type="checkbox" name="good_note" value="D/G">D&#32;
+				<input type="checkbox" name="good_note" value="E/G">E&#32;
+				<input type="checkbox" name="good_note" value="F/G">F&#32;
+				<input type="checkbox" name="good_note" value="G/G">G&#32;
+				<input type="checkbox" name="good_note" value="A/G">A&#32;
+				<input type="checkbox" name="good_note" value="B/G">B&#32;
+				</b>
+			</td>
+		</tr>
+		<tr>
+			<td> A Minor (vi chord): </td>
+			<td> &#32;&#32;Bad<input id="6_chord" type="range" min="0" max="100" step="1" value="50"/>Good&#32;&#32; </td>
+			<td> 
+				<b>
+				<input type="checkbox" name="good_note" value="C/A">C&#32;
+				<input type="checkbox" name="good_note" value="D/A">D&#32;
+				<input type="checkbox" name="good_note" value="E/A">E&#32;
+				<input type="checkbox" name="good_note" value="F/A">F&#32;
+				<input type="checkbox" name="good_note" value="G/A">G&#32;
+				<input type="checkbox" name="good_note" value="A/A">A&#32;
+				<input type="checkbox" name="good_note" value="B/A">B&#32;
+				</b>
+			</td>
+		</tr>
+		<tr>
+			<td> B Diminished (vii&#176; chord): </td>
+			<td> &#32;&#32;Bad<input id="7_chord" type="range" min="0" max="100" step="1" value="50"/>Good&#32;&#32; </td>
+			<td> 
+				<b>
+				<input type="checkbox" name="good_note" value="C/B">C&#32;
+				<input type="checkbox" name="good_note" value="D/B">D&#32;
+				<input type="checkbox" name="good_note" value="E/B">E&#32;
+				<input type="checkbox" name="good_note" value="F/B">F&#32;
+				<input type="checkbox" name="good_note" value="G/B">G&#32;
+				<input type="checkbox" name="good_note" value="A/B">A&#32;
+				<input type="checkbox" name="good_note" value="B/B">B&#32;
+				</b>
+			</td>
+		</tr>
+    	</table>
+	</div>
