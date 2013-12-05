@@ -68,19 +68,35 @@
 	 	}
 	}
 
+	var measure = 0;
+	var first_time = 0;
+
+	var measure2 = 0
+	var first_time2 = 0;
+
 	 /*
 	  * Draw notes on the canvas.
 	  */
 	function draw_state(note, chord) {
-	  // Clear the staff.
-	  ctx.clear();
-	  ctx2.clear();
-
 	  // DRAW NOTE
-      var stave = new Vex.Flow.Stave(10, 0, 100);
-      stave.addClef("treble").setContext(ctx).draw();
+	  measure += 1;
+	  if (measure === 10) {
+	  	measure = 0;
+	  	last_stave.x = 10;
+        ctx.clear();
+        last_stave = new Vex.Flow.Stave(10, 0, 60);
+		last_stave.addClef("treble").setContext(ctx).draw();
+	  }
+      var stave = new Vex.Flow.Stave(last_stave.width + last_stave.x, 0, 60);
+      if (measure === 0 && first_time === 1) {
+      	stave.addClef("treble").setContext(ctx).draw();
+      	first_time = 1;
+      }
+      else {
+      	stave.setContext(ctx).draw();
+      }
       // Convert note.
-      if (note.length == 2) {
+      if (note.length === 2) {
       	var new_note = new Vex.Flow.StaveNote({ keys: [note.toLowerCase().substring(0, 1) + "/" + note.substring(1, 2)], duration: "q" });
       }
 	  else {
@@ -88,7 +104,7 @@
 	  }
 	  var staff_notes = [];
 	  // Play note.
-	  if (note.length == 2) {
+	  if (note.length === 2) {
 	    staff_notes.push(new_note);
 	  }
 	  else {
@@ -99,7 +115,7 @@
 	  		staff_notes.push(new_note.addAccidental(0, new Vex.Flow.Accidental("b")));
 	  	}
 	  }
-	  // Create a voice in 1/4 for now.
+	  // Create a voice in 1/4.
 	  var voice = new Vex.Flow.Voice({
 	    num_beats: 1,
 	    beat_value: 4,
@@ -111,21 +127,36 @@
 	  var formatter = new Vex.Flow.Formatter().joinVoices([voice]).format([voice], 500);
 	  // Render voice
 	  voice.draw(ctx, stave);
+	  last_stave = stave;
 
-      // DRAW CHORD
-      var stave2 = new Vex.Flow.Stave(10, 0, 100);
-      stave2.addClef("bass").setContext(ctx2).draw();
+
+	  // DRAW CHORD
+	  measure2 += 1;
+	  if (measure2 === 10) {
+	  	measure2 = 0;
+	  	last_stave2.x = 10;
+        ctx2.clear();
+        last_stave2 = new Vex.Flow.Stave(10, 0, 60);
+		last_stave2.addClef("bass").setContext(ctx2).draw();
+	  }
+      var stave2 = new Vex.Flow.Stave(last_stave2.width + last_stave2.x, 0, 60);
+      if (measure2 === 0 && first_time2 == 1) {
+      	stave2.addClef("bass").setContext(ctx2).draw();
+      	first_time2 = 1;
+      }
+      else {
+      	stave2.setContext(ctx2).draw();
+      }
       // Convert note.
-	  var chord_notes = new Array();
+      var chord_notes = new Array();
 	  for (i = 0; i < chord.length; i++) {
 	  		chord_notes.push(chord[i].toLowerCase().substring(0, 1) + "/" + chord[i].substring(1, 2));
 	  }
-	  console.log(chord_notes);
 	  var new_chord = new Vex.Flow.StaveNote({ keys: chord_notes, duration: "q" });
 	  var staff_chords = [];
 	  // Play note.
 	   staff_chords.push(new_chord);
-	  // Create a voice in 1/4 for now.
+	  // Create a voice in 1/4.
 	  var voice2 = new Vex.Flow.Voice({
 	    num_beats: 1,
 	    beat_value: 4,
@@ -137,9 +168,7 @@
 	  var formatter2 = new Vex.Flow.Formatter().joinVoices([voice2]).format([voice2], 500);
 	  // Render voice
 	  voice2.draw(ctx2, stave2);
-	  // Draw the chord
-      var stave2 = new Vex.Flow.Stave(10, 0, 100);
-      stave2.addClef("bass").setContext(ctx2).draw();
+	  last_stave2 = stave2;
 	}
 
 	/*
@@ -236,9 +265,10 @@
 		<h2>C Major:</h2>
 		<table>
 			<tr>
-				<td>
-					<canvas id="score" width="150" height="100"></canvas>
-				</td>
+				<canvas id="score" width="1000" height="100"></canvas>
+				<canvas id="score2" width="1000" height="100"></canvas>
+			</tr>
+			<tr>
 				<td style="width:250px">
 					<h3 id="display_note">
 						Note: 
@@ -250,9 +280,6 @@
 				</td>
 			</tr>
 			<tr>
-				<td>
-					<canvas id="score2" width="150" height="100"></canvas>
-				</td>
 				<td style="width:250px">
 					<h3 id="display_chord">
 						Chord: 
@@ -415,12 +442,12 @@ var renderer = new Vex.Flow.Renderer(canvas, Vex.Flow.Renderer.Backends.CANVAS);
 var renderer2 = new Vex.Flow.Renderer(canvas2, Vex.Flow.Renderer.Backends.CANVAS);
 var ctx = renderer.getContext();
 var ctx2 = renderer2.getContext();
-var stave = new Vex.Flow.Stave(10, 0, 100);
-var stave2 = new Vex.Flow.Stave(10, 0, 100);
+var last_stave = new Vex.Flow.Stave(10, 0, 60);
+var last_stave2 = new Vex.Flow.Stave(10, 0, 60);
 
 var draw_canvas = function() {
-	stave.addClef("treble").setContext(ctx).draw();
-	stave2.addClef("bass").setContext(ctx2).draw();
+	last_stave.addClef("treble").setContext(ctx).draw();
+	last_stave2.addClef("bass").setContext(ctx2).draw();
 };
 
 // Constants for chord mappings
