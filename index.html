@@ -81,10 +81,12 @@
 	  // DRAW NOTE
 	  measure += 1;
 	  if (measure === 10) {
+	  	trebleClicks = {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0, 9:0, 10:0, 11:0, 12:0};
+		bassClicks = {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0, 9:0, 10:0, 11:0, 12:0};
 	  	measure = 0;
 	  	last_stave.x = 10;
         ctx.clear();
-        last_stave = new Vex.Flow.Stave(10, 0, 60);
+        last_stave = new Vex.Flow.Stave(0, 0, 60);
 		last_stave.addClef("treble").setContext(ctx).draw();
 	  }
       var stave = new Vex.Flow.Stave(last_stave.width + last_stave.x, 0, 60);
@@ -136,7 +138,7 @@
 	  	measure2 = 0;
 	  	last_stave2.x = 10;
         ctx2.clear();
-        last_stave2 = new Vex.Flow.Stave(10, 0, 60);
+        last_stave2 = new Vex.Flow.Stave(0, 0, 60);
 		last_stave2.addClef("bass").setContext(ctx2).draw();
 	  }
       var stave2 = new Vex.Flow.Stave(last_stave2.width + last_stave2.x, 0, 60);
@@ -267,18 +269,14 @@
 			<tr>
 				<canvas id="score" width="1000" height="100"></canvas>
 
-				<button class="btn btn-large btn-success" type="button">Good</button>
-				<button class="btn btn-large btn-danger" type="button">Bad</button>
 				<h3 id="display_note">
 					Note: 
 				</h3>
 
 				<canvas id="score2" width="1000" height="100"></canvas>
 
-				<button class="btn btn-large btn-success" type="button">Good</button>
-				<button class="btn btn-large btn-danger" type="button">Bad</button>
 				<h3 id="display_chord">
-						Chord: 
+					Chord: 
 				</h3>
 			</tr>
 		</table>
@@ -304,6 +302,59 @@
 
 <script type="text/javascript">
 
+var trebleClicks = {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0, 9:0, 10:0, 11:0, 12:0};
+var bassClicks = {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0, 9:0, 10:0, 11:0, 12:0};
+
+// Canvas highlighting
+$("#score").click(function myDown(e) 
+{
+  var position = $(canvas).position();
+  var x = e.pageX-position.left;
+  var y = e.pageY-position.top;
+  var canv = document.getElementById('score');
+  var cont = canv.getContext('2d');
+  cont.globalAlpha = 0.5;
+  cont.beginPath();
+  cont.rect(Math.floor(x/60) * 60, 0, 60, 100);
+  if (trebleClicks[Math.floor(x/60)] === 0) {
+  	cont.fillStyle = 'green';
+  	trebleClicks[Math.floor(x/60)] = 1;
+  	cont.fill();
+  }
+  else if (trebleClicks[Math.floor(x/60)] === 1) {
+  	cont.fillStyle = 'red';
+  	trebleClicks[Math.floor(x/60)] = 2;
+  	cont.fill();
+  }
+  cont.globalAlpha = 1.0;
+  cont.fillStyle = 'black';
+});
+
+$("#score2").click(function myDown(e) 
+{
+  var position = $(canvas2).position();
+  var x = e.pageX-position.left;
+  var y = e.pageY-position.top;
+  var canv = document.getElementById('score2');
+  var cont = canv.getContext('2d');
+  cont.globalAlpha = 0.5;
+  cont.beginPath();
+  cont.rect(Math.floor(x/60) * 60, 0, 60, 100);
+  if (trebleClicks[Math.floor(x/60)] === 0) {
+  	cont.fillStyle = 'green';
+  	trebleClicks[Math.floor(x/60)] = 1;
+  	cont.fill();
+  }
+  else if (trebleClicks[Math.floor(x/60)] === 1) {
+  	cont.fillStyle = 'red';
+  	trebleClicks[Math.floor(x/60)] = 2;
+  	cont.fill();
+  }
+  cont.globalAlpha = 1.0;
+  cont.fillStyle = 'black';
+});
+
+
 // The current tempo (in milliseconds).
 var tempo = 1000;
 
@@ -323,8 +374,8 @@ var renderer = new Vex.Flow.Renderer(canvas, Vex.Flow.Renderer.Backends.CANVAS);
 var renderer2 = new Vex.Flow.Renderer(canvas2, Vex.Flow.Renderer.Backends.CANVAS);
 var ctx = renderer.getContext();
 var ctx2 = renderer2.getContext();
-var last_stave = new Vex.Flow.Stave(10, 0, 60);
-var last_stave2 = new Vex.Flow.Stave(10, 0, 60);
+var last_stave = new Vex.Flow.Stave(0, 0, 60);
+var last_stave2 = new Vex.Flow.Stave(0, 0, 60);
 
 var draw_canvas = function() {
 	last_stave.addClef("treble").setContext(ctx).draw();
@@ -360,7 +411,6 @@ var timer = new interval(tempo, function() {
 	// Get the next note via reinforcement machine learning.
 	if (learning_method === 0) {
 		info = reinforcement_learning(state, notes, chords);
-		console.log(state);
 	}
 	// Get the next note via supervised machine learning.
 	if (learning_method === 1) {
