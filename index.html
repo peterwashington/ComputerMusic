@@ -74,16 +74,20 @@
 	var measure2 = 0
 	var first_time2 = 0;
 
+	var t = 1;
+
 	 /*
 	  * Draw notes on the canvas.
 	  */
 	function draw_state(note, chord) {
 	  // DRAW NOTE
 	  measure += 1;
-	  if (measure === 10) {
+	  t = measure;
+	  if (measure === 12) {
 	  	trebleClicks = {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0, 9:0, 10:0, 11:0, 12:0};
 		bassClicks = {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0, 9:0, 10:0, 11:0, 12:0};
 	  	measure = 0;
+	  	t = 0;
 	  	last_stave.x = 10;
         ctx.clear();
         last_stave = new Vex.Flow.Stave(0, 0, 60);
@@ -134,7 +138,7 @@
 
 	  // DRAW CHORD
 	  measure2 += 1;
-	  if (measure2 === 10) {
+	  if (measure2 === 12) {
 	  	measure2 = 0;
 	  	last_stave2.x = 10;
         ctx2.clear();
@@ -192,6 +196,8 @@
 	 */
  	function start() {
  		timer.run();
+ 		t = 0;
+ 		external_timer.run();
  	}
 
  	/*
@@ -199,6 +205,7 @@
  	 */
  	function stop() {
  		timer.end();
+ 		//t = 0;
  	}
 
  	/*
@@ -283,15 +290,21 @@
 	</div>
 
 	<div id="controls">
-		<button class="btn btn-large btn-primary" type="button" onclick="start()">Start</button>
+		<center>
+			<button class="btn btn-large btn-primary" type="button" onclick="start()">Play learned model!</button>
+		</center>
+		<!-- Comment out external controls for now, but add the functionaity demonstrated for saving files later.
 		<button class="btn btn-large btn-primary" type="button" onclick="stop()">Pause</button>
 		<button class="btn btn-large btn-primary" type="button" onclick="window.location.href='data:text;charset=utf-8,helloWorld'">Save Machine Learning Data</button>
+		-->
 	</div>
 
+	<!-- Comment out externa controls for now, but add the functionaity demonstrated for saving files later.
 	<div id="load_files">
 		<h2>Load Machine Learning Data:</h2>
 		<input type="file" multiple onchange="load_from_file(this.files)">
 	</div>
+	-->
 
   </font>
 </div>
@@ -424,6 +437,14 @@ var timer = new interval(tempo, function() {
 	$("#display_note").text("Note: " + MIDI.noteToKey[note] + " (" + noteToDegree[MIDI.noteToKey[note]] + ")");
 	$("#display_chord").text("Chord: (" + MIDI.noteToKey[chord[0]] + ", " + MIDI.noteToKey[chord[1]] + ", " + MIDI.noteToKey[chord[2]] + ")");
 }); 
+
+var external_timer = new interval(tempo, function() {
+	t += 1;
+	if (t === 12) {
+		stop();
+		t = 0;
+	}
+});
 
 $(window).load(function() {
 	$('#controls').hide();
