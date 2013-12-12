@@ -82,12 +82,11 @@
 	function draw_state(note, chord) {
 	  // DRAW NOTE
 	  measure += 1;
-	  t = measure;
-	  if (measure === 12) {
+	  if (measure === 13) {
 	  	trebleClicks = {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0, 9:0, 10:0, 11:0, 12:0};
 		bassClicks = {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0, 9:0, 10:0, 11:0, 12:0};
 	  	measure = 0;
-	  	t = 0;
+	  	t = 1;
 	  	last_stave.x = 10;
         ctx.clear();
         last_stave = new Vex.Flow.Stave(0, 0, 60);
@@ -138,7 +137,7 @@
 
 	  // DRAW CHORD
 	  measure2 += 1;
-	  if (measure2 === 12) {
+	  if (measure2 === 13) {
 	  	measure2 = 0;
 	  	last_stave2.x = 10;
         ctx2.clear();
@@ -196,7 +195,7 @@
 	 */
  	function start() {
  		timer.run();
- 		t = 0;
+ 		//t = 1;
  		external_timer.run();
  	}
 
@@ -205,7 +204,6 @@
  	 */
  	function stop() {
  		timer.end();
- 		//t = 0;
  	}
 
  	/*
@@ -274,23 +272,15 @@
 		<h2>C Major:</h2>
 		<table>
 			<tr>
-				<canvas id="score" width="1000" height="100"></canvas>
-
-				<h3 id="display_note">
-					Note: 
-				</h3>
-
-				<canvas id="score2" width="1000" height="100"></canvas>
-
-				<h3 id="display_chord">
-					Chord: 
-				</h3>
+				<canvas id="score" width="1000" height="120"></canvas>
+				<canvas id="score2" width="1000" height="140"></canvas>
 			</tr>
 		</table>
 	</div>
 
 	<div id="controls">
 		<center>
+			<br>
 			<button class="btn btn-large btn-primary" type="button" onclick="start()">Play learned model!</button>
 		</center>
 		<!-- Comment out external controls for now, but add the functionaity demonstrated for saving files later.
@@ -326,45 +316,45 @@ $("#score").click(function myDown(e)
   var y = e.pageY-position.top;
   var canv = document.getElementById('score');
   var cont = canv.getContext('2d');
-  cont.globalAlpha = 0.5;
-  cont.beginPath();
-  cont.rect(Math.floor(x/60) * 60, 0, 60, 100);
-  if (trebleClicks[Math.floor(x/60)] === 0) {
-  	cont.fillStyle = 'green';
-  	trebleClicks[Math.floor(x/60)] = 1;
-  	cont.fill();
-  }
-  else if (trebleClicks[Math.floor(x/60)] === 1) {
-  	cont.fillStyle = 'red';
-  	trebleClicks[Math.floor(x/60)] = 2;
-  	cont.fill();
-  }
   cont.globalAlpha = 1.0;
-  cont.fillStyle = 'black';
+  cont.beginPath();
+  cont.lineWidth = 5;
+  if (trebleClicks[Math.floor(x/60)] % 2 === 0) {
+  	cont.strokeStyle = 'green';
+  	cont.strokeRect(Math.floor(x/60) * 60, 0, 60, 120);
+  	trebleClicks[Math.floor(x/60)] += 1;
+  	cont.stroke();
+  }
+  else {
+  	cont.strokeStyle = 'red';
+  	cont.strokeRect(Math.floor(x/60) * 60, 0, 60, 120);
+  	trebleClicks[Math.floor(x/60)] += 1;
+  	cont.stroke();
+  }
 });
 
 $("#score2").click(function myDown(e) 
 {
-  var position = $(canvas2).position();
+  var position = $(canvas).position();
   var x = e.pageX-position.left;
   var y = e.pageY-position.top;
   var canv = document.getElementById('score2');
   var cont = canv.getContext('2d');
-  cont.globalAlpha = 0.5;
-  cont.beginPath();
-  cont.rect(Math.floor(x/60) * 60, 0, 60, 100);
-  if (trebleClicks[Math.floor(x/60)] === 0) {
-  	cont.fillStyle = 'green';
-  	trebleClicks[Math.floor(x/60)] = 1;
-  	cont.fill();
-  }
-  else if (trebleClicks[Math.floor(x/60)] === 1) {
-  	cont.fillStyle = 'red';
-  	trebleClicks[Math.floor(x/60)] = 2;
-  	cont.fill();
-  }
   cont.globalAlpha = 1.0;
-  cont.fillStyle = 'black';
+  cont.beginPath();
+  cont.lineWidth = 5;
+  if (trebleClicks[Math.floor(x/60)] % 2 === 0) {
+  	cont.strokeStyle = 'green';
+  	cont.strokeRect(Math.floor(x/60) * 60, 0, 60, 140);
+  	trebleClicks[Math.floor(x/60)] += 1;
+  	cont.stroke();
+  }
+  else {
+  	cont.strokeStyle = 'red';
+  	cont.strokeRect(Math.floor(x/60) * 60, 0, 60, 140);
+  	trebleClicks[Math.floor(x/60)] += 1;
+  	cont.stroke();
+  }
 });
 
 
@@ -399,6 +389,11 @@ var draw_canvas = function() {
 var noteToDegree = {"C4": 1, "C5": 1, "D4": 2, "D5": 2, "E4": 3, "E5": 3, "F4": 4, "F5": 4,
 					"G4": 5, "G5": 5, "A4": 6, "A5": 6, "B4": 7, "B5": 7};
 
+var noteToChord = {"C4": "CMaj(I)", "C5": "CMaj(I)", "D4": "EMin(iii)", "D5": "EMin(iii)", 
+					"E4": "EMin(iii)", "E5": "EMin(iii)", "F4": "FMaj(IV)", "F5": "FMaj(IV)",
+					"G4": "GMaj(V)", "G5": "GMaj(V)", "A4": "AMin(vi)", "A5": "AMin(vi)", 
+					"B4": "BDim(vii)", "B5": "BDim(vii)"};
+
 // Reinforcement machine learning variables.
 var notes = [ {"Name": "C4", "Score": 0}, 
 			  {"Name": "E4", "Score": 0}, 
@@ -407,13 +402,13 @@ var notes = [ {"Name": "C4", "Score": 0},
 			  {"Name": "E5", "Score": 0}, 
 			  {"Name": "G5", "Score": 0} ];
 
-var chords = [ {"Name": "C", "Contents": ["C4", "E4", "G4"], "Score": 0},
-			   {"Name": "D", "Contents": ["D4", "F4", "A4"], "Score": 0},
-			   {"Name": "E", "Contents": ["E4", "G4", "B4"], "Score": 0},
-			   {"Name": "F", "Contents": ["F4", "A4", "C5"], "Score": 0},
-			   {"Name": "G", "Contents": ["G4", "B4", "D5"], "Score": 0},
-			   {"Name": "A", "Contents": ["A4", "C4", "E5"], "Score": 0},
-			   {"Name": "B", "Contents": ["B4", "D5", "F5"], "Score": 0} ];
+var chords = [ {"Name": "C", "Contents": ["C4", "E4", "G4"], "Score": 0, "FullName": "C Maj (I)"},
+			   {"Name": "D", "Contents": ["D4", "F4", "A4"], "Score": 0, "FullName": "D Min (ii)"},
+			   {"Name": "E", "Contents": ["E4", "G4", "B4"], "Score": 0, "FullName": "E Min (iii)"},
+			   {"Name": "F", "Contents": ["F4", "A4", "C5"], "Score": 0, "FullName": "F Maj (IV)"},
+			   {"Name": "G", "Contents": ["G4", "B4", "D5"], "Score": 0, "FullName": "G Maj (V)"},
+			   {"Name": "A", "Contents": ["A4", "C4", "E5"], "Score": 0, "FullName": "A Min (vi)"},
+			   {"Name": "B", "Contents": ["B4", "D5", "F5"], "Score": 0, "FullName": "B Dim (vii)"} ];
 
 var state = [];
 var note = "";
@@ -429,20 +424,34 @@ var timer = new interval(tempo, function() {
 	if (learning_method === 1) {
 		// Do stuff.
 	}
+
+	// Play note.
 	note = info.note;
 	chord = info.chord; 
 	MIDI.noteOn(0, note, 127, 0);
 	MIDI.chordOn(1, chord, 50, 0);
+
+	// Draw the note and its info.
 	draw_state(MIDI.noteToKey[note], [MIDI.noteToKey[chord[0]], MIDI.noteToKey[chord[1]], MIDI.noteToKey[chord[2]] ]);
-	$("#display_note").text("Note: " + MIDI.noteToKey[note] + " (" + noteToDegree[MIDI.noteToKey[note]] + ")");
-	$("#display_chord").text("Chord: (" + MIDI.noteToKey[chord[0]] + ", " + MIDI.noteToKey[chord[1]] + ", " + MIDI.noteToKey[chord[2]] + ")");
+
+	var canv = document.getElementById('score');
+ 	var cont = canv.getContext('2d');
+ 	cont.font="12px Verdana";
+    cont.fillText(MIDI.noteToKey[note] + " (" + noteToDegree[MIDI.noteToKey[note]] + ")", t * 60 + 5, 110);
+
+    var canv2 = document.getElementById('score2');
+ 	var cont2 = canv2.getContext('2d');
+ 	cont2.font="12px Verdana";
+    //cont2.fillText(MIDI.noteToKey[chord[0]] + "," + MIDI.noteToKey[chord[1]] + "," + MIDI.noteToKey[chord[2]] + ")", t * 60 + 5, 125);
+    cont2.fillText(noteToChord[MIDI.noteToKey[chord[0]]], t * 60 + 5, 110);
+    //cont2.fillText(noteToChord[MIDI.noteToKey[chord[0]]], t * 60 + 5, 125);
+    console.log(t);
+    t += 1;
 }); 
 
 var external_timer = new interval(tempo, function() {
-	t += 1;
-	if (t === 12) {
+	if (t === 13) {
 		stop();
-		t = 0;
 	}
 });
 
