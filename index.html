@@ -191,9 +191,35 @@
 	}
 
 	/*
+	 * Update the machine learning models.
+	 */
+ 	function update_learning_models() {
+ 		// Naive update method for now.
+ 		for (var i = 0; i < note_state.length; i++) {
+ 			if (trebleClicks[i] != 0 && trebleClicks[i] % 2 == 0) {
+ 				noteScores[note_state[i]] -= 2.5;
+ 			}
+ 			if (trebleClicks[i] != 0 && trebleClicks[i] % 2 == 1) {
+ 				noteScores[note_state[i]] += 2.5;
+ 			}
+ 		}
+ 		for (var i = 0; i < chord_state.length; i++) {
+ 			if (bassClicks[i] != 0 && bassClicks[i] % 2 == 0) {
+ 				chordScores[chord_state[i]] -= 2.5;
+ 			}
+ 			if (bassClicks[i] != 0 && bassClicks[i] % 2 == 1) {
+ 				chordScores[chord_state[i]] += 2.5;
+ 			}
+ 		}
+ 	}
+
+	/*
 	 * Start our machine learning.
 	 */
  	function start() {
+ 		update_learning_models();
+ 		note_state = [];
+		chord_state = [];
  		timer.run();
  		//t = 1;
  		external_timer.run();
@@ -216,18 +242,26 @@
 
  	/*
  	 * Generic reinforcement machine learning algorithm for now.
+ 	 * Gets the next note and chord to play.
  	 */
- 	function reinforcement_learning(state, validNotes, validChords) {
- 		var note = validNotes[Math.floor(Math.random() * validNotes.length)];
- 		var chord = validChords[Math.floor(Math.random() * validChords.length)];
- 		var chord_contents = chord["Contents"];
- 		var nextNote = MIDI.keyToNote[note["Name"]];
+ 	function reinforcement_learning(noteState, chordState, validNotes, validChords, note_scores, chord_scores) {
+ 		var noteProb = Math.random();
+ 		var chordProb = Math.random();
+
+ 		var note = "E4";
+ 		var chord = "C";
+
+
+
+ 		var chord_contents = chordContents[chord];
+ 		var nextNote = MIDI.keyToNote[note];
  		var nextChord = [];
  		for (var i = 0; i < chord_contents.length; i++) {
  			nextChord.push(MIDI.keyToNote[chord_contents[i]]);
  		}
  		var next = new Info(nextChord, nextNote);
- 		state.push(next);
+ 		noteState.push(note);
+ 		chordState.push(chord);
  		return next;
  	}
 
@@ -324,16 +358,16 @@ $("#score").click(function myDown(e)
   cont.globalAlpha = 1.0;
   cont.beginPath();
   cont.lineWidth = 5;
-  if (trebleClicks[Math.floor(x/60)] % 2 === 0) {
+  if (trebleClicks[Math.floor(x/60)-1] % 2 === 0) {
   	cont.strokeStyle = 'green';
   	cont.strokeRect(Math.floor(x/60) * 60, 0, 60, 120);
-  	trebleClicks[Math.floor(x/60)] += 1;
+  	trebleClicks[Math.floor(x/60)-1] += 1;
   	cont.stroke();
   }
   else {
   	cont.strokeStyle = 'red';
   	cont.strokeRect(Math.floor(x/60) * 60, 0, 60, 120);
-  	trebleClicks[Math.floor(x/60)] += 1;
+  	trebleClicks[Math.floor(x/60)-1] += 1;
   	cont.stroke();
   }
 });
@@ -348,16 +382,16 @@ $("#score2").click(function myDown(e)
   cont.globalAlpha = 1.0;
   cont.beginPath();
   cont.lineWidth = 5;
-  if (trebleClicks[Math.floor(x/60)] % 2 === 0) {
+  if (bassClicks[Math.floor(x/60)-1] % 2 === 0) {
   	cont.strokeStyle = 'green';
   	cont.strokeRect(Math.floor(x/60) * 60, 0, 60, 140);
-  	trebleClicks[Math.floor(x/60)] += 1;
+  	bassClicks[Math.floor(x/60)-1] += 1;
   	cont.stroke();
   }
   else {
   	cont.strokeStyle = 'red';
   	cont.strokeRect(Math.floor(x/60) * 60, 0, 60, 140);
-  	trebleClicks[Math.floor(x/60)] += 1;
+  	bassClicks[Math.floor(x/60)-1] += 1;
   	cont.stroke();
   }
 });
@@ -394,41 +428,54 @@ var draw_canvas = function() {
 var noteToDegree = {"C4": 1, "C5": 1, "D4": 2, "D5": 2, "E4": 3, "E5": 3, "F4": 4, "F5": 4,
 					"G4": 5, "G5": 5, "A4": 6, "A5": 6, "B4": 7, "B5": 7};
 
-var noteToChord = {"C4": "CMaj(I)", "C5": "CMaj(I)", "D4": "EMin(iii)", "D5": "EMin(iii)", 
+var noteToChord = {"C4": "CMaj(I)", "C5": "CMaj(I)", "D4": "DMin(ii)", "D5": "DMin(ii)", 
 					"E4": "EMin(iii)", "E5": "EMin(iii)", "F4": "FMaj(IV)", "F5": "FMaj(IV)",
 					"G4": "GMaj(V)", "G5": "GMaj(V)", "A4": "AMin(vi)", "A5": "AMin(vi)", 
 					"B4": "BDim(vii)", "B5": "BDim(vii)"};
 
 // Reinforcement machine learning variables.
-var notes = [ {"Name": "C4", "Score": 0}, 
-			  {"Name": "E4", "Score": 0}, 
-			  {"Name": "G4", "Score": 0}, 
-			  {"Name": "C5", "Score": 0}, 
-			  {"Name": "E5", "Score": 0}, 
-			  {"Name": "G5", "Score": 0} ];
+var notes = [ {"Name": "C4"}, 
+			  {"Name": "E4"}, 
+			  {"Name": "G4"}, 
+			  {"Name": "C5"}, 
+			  {"Name": "E5"}, 
+			  {"Name": "G5"} ];
 
-var chords = [ {"Name": "C", "Contents": ["C4", "E4", "G4"], "Score": 0, "FullName": "C Maj (I)"},
-			   {"Name": "D", "Contents": ["D4", "F4", "A4"], "Score": 0, "FullName": "D Min (ii)"},
-			   {"Name": "E", "Contents": ["E4", "G4", "B4"], "Score": 0, "FullName": "E Min (iii)"},
-			   {"Name": "F", "Contents": ["F4", "A4", "C5"], "Score": 0, "FullName": "F Maj (IV)"},
-			   {"Name": "G", "Contents": ["G4", "B4", "D5"], "Score": 0, "FullName": "G Maj (V)"},
-			   {"Name": "A", "Contents": ["A4", "C4", "E5"], "Score": 0, "FullName": "A Min (vi)"},
-			   {"Name": "B", "Contents": ["B4", "D5", "F5"], "Score": 0, "FullName": "B Dim (vii)"} ];
+var chords = [ {"Name": "C", "Contents": ["C4", "E4", "G4"], "FullName": "C Maj (I)"},
+			   {"Name": "D", "Contents": ["D4", "F4", "A4"], "FullName": "D Min (ii)"},
+			   {"Name": "E", "Contents": ["E4", "G4", "B4"], "FullName": "E Min (iii)"},
+			   {"Name": "F", "Contents": ["F4", "A4", "C5"], "FullName": "F Maj (IV)"},
+			   {"Name": "G", "Contents": ["G4", "B4", "D5"], "FullName": "G Maj (V)"},
+			   {"Name": "A", "Contents": ["A4", "C4", "E5"], "FullName": "A Min (vi)"},
+			   {"Name": "B", "Contents": ["B4", "D5", "F5"], "FullName": "B Dim (vii)"} ];
 
-var state = [];
+var chordContents = {"C": ["C4", "E4", "G4"], "D": ["D4", "F4", "A4"], "E": ["E4", "G4", "B4"],
+					 "F": ["F4", "A4", "C5"], "G": ["G4", "B4", "D5"], "A": ["A4", "C4", "E5"],
+					 "B": ["B4", "D5", "F5"] };
+
+var noteScores = {"C4": 0.0, "E4": 0.0, "G4": 0.0, "C5":0.0, "E5": 0.0, "G5": 0.0};
+var chordScores = {"C": 0.0, "D": 0.0, "E": 0.0, "F": 0.0, "G": 0.0, "A": 0.0, "B": 0.0};
+
 var note = "";
 var chord = "";
+var note_state = [];
+var chord_state = [];
 
 var timer = new interval(tempo, function() {
+
+	console.log(noteScores);
+	console.log(chordScores);
+
 	var info = new Info(null, null);
 	// Get the next note via reinforcement machine learning.
 	if (learning_method === 0) {
-		info = reinforcement_learning(state, notes, chords);
+		info = reinforcement_learning(note_state, chord_state, notes, chords, noteScores, chordScores);
 	}
 	// Get the next note via supervised machine learning.
 	if (learning_method === 1) {
 		// Do stuff.
 	}
+
 
 	// Play note.
 	note = info.note;
