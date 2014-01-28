@@ -82,7 +82,7 @@
 	function draw_state(note, chord) {
 	  // DRAW NOTE
 	  measure += 1;
-	  if (measure === 13) {
+	  if (measure === 12) {
 	  	trebleClicks = {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0, 9:0, 10:0, 11:0, 12:0};
 		bassClicks = {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0, 9:0, 10:0, 11:0, 12:0};
 	  	measure = 0;
@@ -137,7 +137,7 @@
 
 	  // DRAW CHORD
 	  measure2 += 1;
-	  if (measure2 === 13) {
+	  if (measure2 === 12) {
 	  	measure2 = 0;
 	  	last_stave2.x = 10;
         ctx2.clear();
@@ -245,14 +245,71 @@
  	 * Gets the next note and chord to play.
  	 */
  	function reinforcement_learning(noteState, chordState, validNotes, validChords, note_scores, chord_scores) {
+ 		var chordContents = {"C": ["C4", "E4", "G4"], "D": ["D4", "F4", "A4"], "E": ["E4", "G4", "B4"],
+					 "F": ["F4", "A4", "C5"], "G": ["G4", "B4", "D5"], "A": ["A4", "C4", "E5"],
+					 "B": ["B4", "D5", "F5"] };
+
  		var noteProb = Math.random();
  		var chordProb = Math.random();
 
- 		var note = "E4";
- 		var chord = "C";
+ 		var note = validNotes[Math.floor(Math.random() * validNotes.length)];
+ 		note = note["Name"];
+        var chord = validChords[Math.floor(Math.random() * validChords.length)];
+        chord = chord["Name"];
 
+ 		// Decide the next note to be played.
+ 		var note_total = 0;
+ 		var note_change = 0;
+ 		for (var key in note_scores) {
+ 			if (note_scores[key] > 0.0) {
+ 				note_total += note_scores[key];
+ 			}
+ 			if (note_scores[key] != 0.0) {
+ 				note_change += 1;
+ 			}
+ 		}
+ 		if (note_change > 0) {
+ 			var note_value = note_total * noteProb;
+	 		var note_sum = 0;
+	 		for (var key in note_scores) {
+	 			if (note_scores[key] < 0.0) {
+	 				continue;
+	 			}
+	 			note_sum += note_scores[key];
+	 			if (note_sum > note_value) {
+	 				note = key;
+	 				break;
+	 			}
+	 		}
+ 		}
+ 		
+ 		// Decide the next chord to be played.
+ 		var chord_total = 0;
+ 		var chord_change = 0;
+ 		for (var key in chord_scores) {
+ 			if (chord_scores[key] > 0.0) {
+ 				chord_total += chord_scores[key];
+ 			}
+ 			if (chord_scores[key] != 0.0) {
+ 				chord_change += 1;
+ 			}
+ 		}
+ 		if (chord_change > 0) {
+ 			var chord_value = chord_total * chordProb;
+	 		var chord_sum = 0;
+	 		for (var key in chord_scores) {
+	 			if (chord_scores[key] < 0.0) {
+	 				continue;
+	 			}
+	 			chord_sum += chord_scores[key];
+	 			if (chord_sum > chord_value) {
+	 				chord = key;
+	 				break;
+	 			}
+	 		}
+ 		}
 
-
+ 		// Push the note and chord to be played.
  		var chord_contents = chordContents[chord];
  		var nextNote = MIDI.keyToNote[note];
  		var nextChord = [];
@@ -358,16 +415,16 @@ $("#score").click(function myDown(e)
   cont.globalAlpha = 1.0;
   cont.beginPath();
   cont.lineWidth = 5;
-  if (trebleClicks[Math.floor(x/60)-1] % 2 === 0) {
+  if (trebleClicks[Math.floor(x/60) - 1] % 2 === 0) {
   	cont.strokeStyle = 'green';
   	cont.strokeRect(Math.floor(x/60) * 60, 0, 60, 120);
-  	trebleClicks[Math.floor(x/60)-1] += 1;
+  	trebleClicks[Math.floor(x/60) - 1] += 1;
   	cont.stroke();
   }
   else {
   	cont.strokeStyle = 'red';
   	cont.strokeRect(Math.floor(x/60) * 60, 0, 60, 120);
-  	trebleClicks[Math.floor(x/60)-1] += 1;
+  	trebleClicks[Math.floor(x/60) - 1] += 1;
   	cont.stroke();
   }
 });
@@ -449,12 +506,8 @@ var chords = [ {"Name": "C", "Contents": ["C4", "E4", "G4"], "FullName": "C Maj 
 			   {"Name": "A", "Contents": ["A4", "C4", "E5"], "FullName": "A Min (vi)"},
 			   {"Name": "B", "Contents": ["B4", "D5", "F5"], "FullName": "B Dim (vii)"} ];
 
-var chordContents = {"C": ["C4", "E4", "G4"], "D": ["D4", "F4", "A4"], "E": ["E4", "G4", "B4"],
-					 "F": ["F4", "A4", "C5"], "G": ["G4", "B4", "D5"], "A": ["A4", "C4", "E5"],
-					 "B": ["B4", "D5", "F5"] };
-
-var noteScores = {"C4": 0.0, "E4": 0.0, "G4": 0.0, "C5":0.0, "E5": 0.0, "G5": 0.0};
-var chordScores = {"C": 0.0, "D": 0.0, "E": 0.0, "F": 0.0, "G": 0.0, "A": 0.0, "B": 0.0};
+var noteScores = {"C4": 0.5, "E4": 0.5, "G4": 0.5, "C5":0.5, "E5": 0.5, "G5": 0.5};
+var chordScores = {"C": 0.5, "D": 0.5, "E": 0.5, "F": 0.5, "G": 0.5, "A": 0.5, "B": 0.5};
 
 var note = "";
 var chord = "";
