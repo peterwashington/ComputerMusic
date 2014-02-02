@@ -196,7 +196,7 @@
 	 * For now, the learning_method is the order of the Markov Model.
 	 */
  	function update_learning_models(learning_method) {
- 		// Zeroth-order Markov model. Note/chord relationship not considered.
+ 		// Update note scores.
  		for (var i = 0; i < note_state.length; i++) {
  			var scoreKeyNote = new Array();
 			for (var j = 0; j <= learning_method; j++) {
@@ -224,6 +224,7 @@
  				}
  			}
  		}
+ 		// Update chord scores.
  		for (var i = 0; i < chord_state.length; i++) {
  			var scoreKeyChord = new Array();
 			for (var j = 0; j <= learning_method; j++) {
@@ -250,7 +251,104 @@
  				}
  			}
  		}
+ 		// Update note pair scores.
+ 		for (var i = 0; i < note_state.length; i++) {
+			var infoList = [];
+			for (var j = 0; j <= learning_method; j++) {
+				var newArray = Array();
+				newArray.push(note_state[i-j]);
+				newArray.push(chord_state[i-j]);
+				infoList.push(newArray);
+			}
+			infoList.reverse();
+			if (infoList.length < learning_method) {
+				continue;
+			}
+			if (trebleClicks[i] != 0 && trebleClicks[i] % 2 == 0) {
+				if (!(note_state[i] in notePairScores)) {
+					var keyString = infoList.toString();
+					notePairScores[note_state[i]] = {};
+					notePairScores[note_state[i]][infoList.toString()] = -2.5;
+				}
+				else {
+					if (infoList.toString() in notePairScores[note_state[i]]) {
+ 						notePairScores[note_state[i]][infoList.toString()] -= 2.5;
+	 				}
+	 				else {
+	 					notePairScores[note_state[i]][infoList.toString()] = -2.5;
+	 				}
+				}
+ 			}
+ 			if (trebleClicks[i] != 0 && trebleClicks[i] % 2 == 1) {
+ 				if (!(note_state[i] in notePairScores)) {
+					notePairScores[note_state[i]] = {};
+					notePairScores[note_state[i]][infoList.toString()] = 2.5;
+				}
+				else {
+					if (infoList.toString() in notePairScores[note_state[i]]) {
+ 						notePairScores[note_state[i]][infoList.toString()] += 2.5;
+	 				}
+	 				else {
+	 					notePairScores[note_state[i]][infoList.toString()] = 2.5;
+	 				}
+				}
+ 			}
+ 		}
+ 		// Update chord pair scores.
+ 		for (var i = 0; i < chord_state.length; i++) {
+			var infoList = [];
+			for (var j = 0; j <= learning_method; j++) {
+				var newArray = Array();
+				newArray.push(note_state[i-j]);
+				newArray.push(chord_state[i-j]);
+				infoList.push(newArray);
+			}
+			infoList.reverse();
+			if (infoList.length < learning_method) {
+				continue;
+			}
+			if (bassClicks[i] != 0 && bassClicks[i] % 2 == 0) {
+				if (!(chord_state[i] in chordPairScores)) {
+					var keyString = infoList.toString();
+					chordPairScores[chord_state[i]] = {};
+					chordPairScores[chord_state[i]][infoList.toString()] = -2.5;
+				}
+				else {
+					if (infoList.toString() in chordPairScores[chord_state[i]]) {
+ 						chordPairScores[chord_state[i]][infoList.toString()] -= 2.5;
+	 				}
+	 				else {
+	 					chordPairScores[chord_state[i]][infoList.toString()] = -2.5;
+	 				}
+				}
+ 			}
+ 			if (bassClicks[i] != 0 && bassClicks[i] % 2 == 1) {
+ 				if (!(chord_state[i] in chordPairScores)) {
+					chordPairScores[chord_state[i]] = {};
+					chordPairScores[chord_state[i]][infoList.toString()] = 2.5;
+				}
+				else {
+					if (infoList.toString() in chordPairScores[chord_state[i]]) {
+ 						chordPairScores[chord_state[i]][infoList.toString()] += 2.5;
+	 				}
+	 				else {
+	 					chordPairScores[chord_state[i]][infoList.toString()] = 2.5;
+	 				}
+				}
+ 			}
+ 		}
  	}
+
+ 	/*
+	 *
+	 * Proposed data structure for n-order Markov models:
+	 * 
+	 * noteScores: { [note1, note2, ..., noteN]: score, ... }
+	 * chordScores: { [chord1, chord2, ..., chordN]: score, ... }
+	 * notePairScores: { note1: { [Info(note1, chord1), ..., Info(noteN, chordN)]: score, .. }, .. }
+	 * chordPairScores: { chord1: { [Info(note1, chord1), ..., Info(noteN, chordN)]: score, .. }, .. }
+	 *
+	 */
 
 	/*
 	 * Start our machine learning.
@@ -262,6 +360,23 @@
 		chord_state = [];
  		timer.run();
  		external_timer.run();
+
+ 		//console.log(noteScores);
+		//console.log(chordScores);
+		console.log(notePairScores);
+		for (var s in notePairScores) {
+			console.log(notePairScores[s]);
+			for (var t in notePairScores[s]) {
+				console.log(t);
+			}
+		}
+		console.log(chordPairScores);
+		for (var s in chordPairScores) {
+			console.log(chordPairScores[s]);
+			for (var t in chordPairScores[s]) {
+				console.log(t);
+			}
+		}
  	}
 
  	/*
@@ -297,7 +412,7 @@
  	/*
  	 * Play the note / chord combination based on probability that the next note is favorable to the user.
  	 */
- 	function machine_learning(noteState, chordState, validNotes, validChords, note_scores, chord_scores, markovOrder, iteration) {
+ 	function machine_learning(noteState, chordState, validNotes, validChords, note_scores, chord_scores, note_pair_scores, chord_pair_scores, markovOrder, iteration) {
  		var chordContents = {"C": ["C4", "E4", "G4"], "D": ["D4", "F4", "A4"], "E": ["E4", "G4", "B4"],
 					 "F": ["F4", "A4", "C5"], "G": ["G4", "B4", "D5"], "A": ["A4", "C4", "E5"],
 					 "B": ["B4", "D5", "F5"] };
@@ -570,14 +685,18 @@ var chords = [ {"Name": "C", "Contents": ["C4", "E4", "G4"], "FullName": "C Maj 
  * 
  * noteScores: { [note1, note2, ..., noteN]: score, ... }
  * chordScores: { [chord1, chord2, ..., chordN]: score, ... }
- * noteToChordScores: { note1: { [chord1, chord2, ..., chordN]: score, ... }, ... }
- * chordToNoteScores: { chord1: { [note1, note2, ..., noteN]: score, ... }, ... }
+ * notePairScores: { note1: { [Info(note1, chord1), ..., Info(noteN, chordN)]: score, .. }, .. }
+ * chordPairScores: { chord1: { [Info(note1, chord1), ..., Info(noteN, chordN)]: score, .. }, .. }
  *
  */
 
-
+// Just account for melody and chord structure, independent of each other.
 var noteScores = {};
 var chordScores = {};
+
+// Account for note-chord pairs.
+var notePairScores = {};
+var chordPairScores = {};
 
 var note = "";
 var chord = "";
@@ -588,13 +707,10 @@ var iteration = 0;
 
 var timer = new interval(tempo, function() {
 
-	console.log(noteScores);
-	console.log(chordScores);
-
 	var info = new Info(null, null);
 
 	// Get the next note via machine learning.
-	info = machine_learning(note_state, chord_state, notes, chords, noteScores, chordScores, 1, iteration);
+	info = machine_learning(note_state, chord_state, notes, chords, noteScores, chordScores, notePairScores, chordPairScores, 1, iteration);
 
 	// Play note.
 	note = info.note;
