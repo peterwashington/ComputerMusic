@@ -192,23 +192,62 @@
 
 	/*
 	 * Update the machine learning models.
+	 *
+	 * For now, the learning_method is the order of the Markov Model.
 	 */
- 	function update_learning_models() {
- 		// Naive update method for now.
+ 	function update_learning_models(learning_method) {
+ 		// Zeroth-order Markov model. Note/chord relationship not considered.
  		for (var i = 0; i < note_state.length; i++) {
+ 			var scoreKeyNote = new Array();
+			for (var j = 0; j <= learning_method; j++) {
+				scoreKeyNote.push(note_state[i-j]);
+			}
+			scoreKeyNote.reverse();
+			// Hack --- figure out how to deal with this situation later.
+			if (scoreKeyNote.length < learning_method) {
+				continue;
+			}
  			if (trebleClicks[i] != 0 && trebleClicks[i] % 2 == 0) {
- 				noteScores[note_state[i]] -= 2.5;
+ 				if (scoreKeyNote in noteScores) {
+ 					noteScores[scoreKeyNote] -= 2.5;
+ 				}
+ 				else {
+ 					noteScores[scoreKeyNote] = -2.5;
+ 				}
  			}
  			if (trebleClicks[i] != 0 && trebleClicks[i] % 2 == 1) {
- 				noteScores[note_state[i]] += 2.5;
+ 				if (scoreKeyNote in noteScores) {
+ 					noteScores[scoreKeyNote] += 2.5;
+ 				}
+ 				else {
+ 					noteScores[scoreKeyNote] = 2.5;
+ 				}
  			}
  		}
  		for (var i = 0; i < chord_state.length; i++) {
+ 			var scoreKeyChord = new Array();
+			for (var j = 0; j <= learning_method; j++) {
+				scoreKeyChord.push(chord_state[i-j]);
+			}
+			scoreKeyChord.reverse();
+			if (scoreKeyChord.length < learning_method) {
+				continue;
+			}
  			if (bassClicks[i] != 0 && bassClicks[i] % 2 == 0) {
- 				chordScores[chord_state[i]] -= 2.5;
+ 				if (scoreKeyChord in chordScores) {
+ 					chordScores[scoreKeyChord] -= 2.5;
+ 				}
+ 				else {
+ 					chordScores[scoreKeyChord] = -2.5;
+ 				}
  			}
  			if (bassClicks[i] != 0 && bassClicks[i] % 2 == 1) {
- 				chordScores[chord_state[i]] += 2.5;
+ 				if (scoreKeyChord in chordScores) {
+ 					chordScores[scoreKeyChord] += 2.5;
+ 				}
+ 				else {
+ 					chordScores[scoreKeyChord] = 2.5;
+ 				}
  			}
  		}
  	}
@@ -217,11 +256,11 @@
 	 * Start our machine learning.
 	 */
  	function start() {
- 		update_learning_models();
+ 		iteration += 1;
+ 		update_learning_models(1);
  		note_state = [];
 		chord_state = [];
  		timer.run();
- 		//t = 1;
  		external_timer.run();
  	}
 
@@ -240,11 +279,25 @@
 		this.note = note;
 	}
 
+	/*
+	 * Compare two arrays.
+	 */
+	 function compare_arrays(array1, array2) {
+	 	if (array1.length != array2.length) {
+	 		return false;
+	 	}
+	 	for (var i = 0; i < array1.length; i++) {
+	 		if (array1[i] != array2[i]) {
+	 			return false;
+	 		}
+	 	}
+	 	return true;
+	 }
+
  	/*
- 	 * Generic reinforcement machine learning algorithm for now.
- 	 * Gets the next note and chord to play.
+ 	 * Play the note / chord combination based on probability that the next note is favorable to the user.
  	 */
- 	function reinforcement_learning(noteState, chordState, validNotes, validChords, note_scores, chord_scores) {
+ 	function machine_learning(noteState, chordState, validNotes, validChords, note_scores, chord_scores, markovOrder, iteration) {
  		var chordContents = {"C": ["C4", "E4", "G4"], "D": ["D4", "F4", "A4"], "E": ["E4", "G4", "B4"],
 					 "F": ["F4", "A4", "C5"], "G": ["G4", "B4", "D5"], "A": ["A4", "C4", "E5"],
 					 "B": ["B4", "D5", "F5"] };
@@ -252,58 +305,72 @@
  		var noteProb = Math.random();
  		var chordProb = Math.random();
 
+ 		//var iterationProbabiliy = 0.9 - iteration*0.05;
+ 		var iterationProbabiliy = 0.1;
+ 		if (iterationProbabiliy < 0.0) {
+ 			iterationProbabiliy = 0.0;
+ 		}
+ 		console.log(iterationProbabiliy);
+ 		var noteRandProb = Math.random();
+ 		var chordRandProb = Math.random();
+
  		var note = validNotes[Math.floor(Math.random() * validNotes.length)];
  		note = note["Name"];
         var chord = validChords[Math.floor(Math.random() * validChords.length)];
         chord = chord["Name"];
 
- 		// Decide the next note to be played.
- 		var note_total = 0;
- 		var note_change = 0;
- 		for (var key in note_scores) {
- 			if (note_scores[key] > 0.0) {
- 				note_total += note_scores[key];
- 			}
- 			if (note_scores[key] != 0.0) {
- 				note_change += 1;
- 			}
- 		}
- 		if (note_change > 0) {
- 			var note_value = note_total * noteProb;
+
+        if (noteRandProb > iterationProbabiliy && noteState.length > markovOrder+1) {
+        	var last_n_notes = noteState.slice(noteState.length-markovOrder, noteState.length);
+	 		var note_total = 0;
+	 		for (var key in note_scores) {
+	 			if (compare_arrays(key.split(",").slice(0, markovOrder), last_n_notes) != true) {
+	 				continue;
+	 			}
+	 			if (note_scores[key] > 0.0) {
+	 				note_total += note_scores[key];
+	 			}
+	 		}
+			var note_value = note_total * noteProb;
 	 		var note_sum = 0;
 	 		for (var key in note_scores) {
+	 			if (compare_arrays(key.split(",").slice(0, markovOrder), last_n_notes) != true) {
+	 				continue;
+	 			}
 	 			if (note_scores[key] < 0.0) {
 	 				continue;
 	 			}
 	 			note_sum += note_scores[key];
 	 			if (note_sum > note_value) {
-	 				note = key;
+	 				note = key.split(",")[markovOrder];
 	 				break;
 	 			}
 	 		}
- 		}
+        }
  		
- 		// Decide the next chord to be played.
- 		var chord_total = 0;
- 		var chord_change = 0;
- 		for (var key in chord_scores) {
- 			if (chord_scores[key] > 0.0) {
- 				chord_total += chord_scores[key];
- 			}
- 			if (chord_scores[key] != 0.0) {
- 				chord_change += 1;
- 			}
- 		}
- 		if (chord_change > 0) {
- 			var chord_value = chord_total * chordProb;
+ 		if (chordRandProb > iterationProbabiliy && chordState.length > markovOrder+1) {
+ 			var last_n_chords = chordState.slice(chordState.length-markovOrder, chordState.length);
+	 		var chord_total = 0;
+	 		for (var key in chord_scores) {
+	 			if (compare_arrays(key.split(",").slice(0, markovOrder), last_n_chords) != true) {
+	 				continue;
+	 			}
+	 			if (chord_scores[key] > 0.0) {
+	 				chord_total += chord_scores[key];
+	 			}
+	 		}
+			var chord_value = chord_total * chordProb;
 	 		var chord_sum = 0;
 	 		for (var key in chord_scores) {
+	 			if (compare_arrays(key.split(",").slice(0, markovOrder), last_n_chords) != true) {
+	 				continue;
+	 			}
 	 			if (chord_scores[key] < 0.0) {
 	 				continue;
 	 			}
 	 			chord_sum += chord_scores[key];
 	 			if (chord_sum > chord_value) {
-	 				chord = key;
+	 				chord = key.split(",")[markovOrder];
 	 				break;
 	 			}
 	 		}
@@ -457,15 +524,6 @@ $("#score2").click(function myDown(e)
 // The current tempo (in milliseconds).
 var tempo = 1000;
 
-// Which type of machine learning are we using?
-// 0 = Reinforcement Learning
-// 1 = Supervised Learning
-var learning_method = 0;
-
-// Which algorithm are we using?
-// 0 = Reinforcement Learning (will find reinforcement subsets later)
-var algorithm = 0;
-
 // Music notation.
 var canvas = $("#score")[0];
 var canvas2 = $("#score2")[0];
@@ -506,13 +564,27 @@ var chords = [ {"Name": "C", "Contents": ["C4", "E4", "G4"], "FullName": "C Maj 
 			   {"Name": "A", "Contents": ["A4", "C4", "E5"], "FullName": "A Min (vi)"},
 			   {"Name": "B", "Contents": ["B4", "D5", "F5"], "FullName": "B Dim (vii)"} ];
 
-var noteScores = {"C4": 0.5, "E4": 0.5, "G4": 0.5, "C5":0.5, "E5": 0.5, "G5": 0.5};
-var chordScores = {"C": 0.5, "D": 0.5, "E": 0.5, "F": 0.5, "G": 0.5, "A": 0.5, "B": 0.5};
+/*
+ *
+ * Proposed data structure for n-order Markov models:
+ * 
+ * noteScores: { [note1, note2, ..., noteN]: score, ... }
+ * chordScores: { [chord1, chord2, ..., chordN]: score, ... }
+ * noteToChordScores: { note1: { [chord1, chord2, ..., chordN]: score, ... }, ... }
+ * chordToNoteScores: { chord1: { [note1, note2, ..., noteN]: score, ... }, ... }
+ *
+ */
+
+
+var noteScores = {};
+var chordScores = {};
 
 var note = "";
 var chord = "";
 var note_state = [];
 var chord_state = [];
+
+var iteration = 0;
 
 var timer = new interval(tempo, function() {
 
@@ -520,15 +592,9 @@ var timer = new interval(tempo, function() {
 	console.log(chordScores);
 
 	var info = new Info(null, null);
-	// Get the next note via reinforcement machine learning.
-	if (learning_method === 0) {
-		info = reinforcement_learning(note_state, chord_state, notes, chords, noteScores, chordScores);
-	}
-	// Get the next note via supervised machine learning.
-	if (learning_method === 1) {
-		// Do stuff.
-	}
 
+	// Get the next note via machine learning.
+	info = machine_learning(note_state, chord_state, notes, chords, noteScores, chordScores, 1, iteration);
 
 	// Play note.
 	note = info.note;
@@ -550,7 +616,6 @@ var timer = new interval(tempo, function() {
     //cont2.fillText(MIDI.noteToKey[chord[0]] + "," + MIDI.noteToKey[chord[1]] + "," + MIDI.noteToKey[chord[2]] + ")", t * 60 + 5, 125);
     cont2.fillText(noteToChord[MIDI.noteToKey[chord[0]]], t * 60 + 5, 110);
     //cont2.fillText(noteToChord[MIDI.noteToKey[chord[0]]], t * 60 + 5, 125);
-    console.log(t);
     t += 1;
 }); 
 
