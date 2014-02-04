@@ -429,12 +429,20 @@
  		var noteRandProb = Math.random();
  		var chordRandProb = Math.random();
 
- 		var note = validNotes[Math.floor(Math.random() * validNotes.length)];
- 		note = note["Name"];
-        var chord = validChords[Math.floor(Math.random() * validChords.length)];
-        chord = chord["Name"];
+ 		var noteScoreNote = validNotes[Math.floor(Math.random() * validNotes.length)];
+ 		noteScoreNote = noteScoreNote["Name"];
+        var chordScoreChord = validChords[Math.floor(Math.random() * validChords.length)];
+        chordScoreChord = chordScoreChord["Name"];
+
+        /* Start here next time!
+        var noteScoreNoteProb = validNotes[Math.floor(Math.random() * validNotes.length)];
+ 		noteScoreNoteProb = noteScoreNoteProb["Name"];
+        var chordScoreChordProb = validChords[Math.floor(Math.random() * validChords.length)];
+        chordScoreChordProb = chordScoreChordProb["Name"];
+        */
 
 
+        // Get the preferred note based on note Markov chain.
         if (noteRandProb > iterationProbabiliy && noteState.length > markovOrder+1) {
         	var last_n_notes = noteState.slice(noteState.length-markovOrder, noteState.length);
 	 		var note_total = 0;
@@ -457,12 +465,13 @@
 	 			}
 	 			note_sum += note_scores[key];
 	 			if (note_sum > note_value) {
-	 				note = key.split(",")[markovOrder];
+	 				noteScoreNote = key.split(",")[markovOrder];
 	 				break;
 	 			}
 	 		}
         }
  		
+ 		// Get the preferred chord based on chord Markov chain.
  		if (chordRandProb > iterationProbabiliy && chordState.length > markovOrder+1) {
  			var last_n_chords = chordState.slice(chordState.length-markovOrder, chordState.length);
 	 		var chord_total = 0;
@@ -485,27 +494,31 @@
 	 			}
 	 			chord_sum += chord_scores[key];
 	 			if (chord_sum > chord_value) {
-	 				chord = key.split(",")[markovOrder];
+	 				chordScoreChord = key.split(",")[markovOrder];
 	 				break;
 	 			}
 	 		}
  		}
 
+ 		// Get the preferred note based on the pair Markov chain.
+
+ 		// Get the preferred chord based on pair Markov chain.
+
  		// Push the note and chord to be played.
- 		var chord_contents = chordContents[chord];
- 		var nextNote = MIDI.keyToNote[note];
+ 		var chord_contents = chordContents[chordScoreChord];
+ 		var nextNote = MIDI.keyToNote[noteScoreNote];
  		var nextChord = [];
  		for (var i = 0; i < chord_contents.length; i++) {
  			nextChord.push(MIDI.keyToNote[chord_contents[i]]);
  		}
  		var next = new Info(nextChord, nextNote);
- 		noteState.push(note);
- 		chordState.push(chord);
+ 		noteState.push(noteScoreNote);
+ 		chordState.push(chordScoreChord);
  		return next;
  	}
 
- 	var note = "";
- 	var chord = "";
+ 	var noteScoreNote = "";
+ 	var chordScoreChord = "";
  	var input_files = [];
 
  </script>
@@ -577,6 +590,11 @@ or chord highlighted green indicates positive feedback, while highlighting red i
 the feedback, press the "Play learned model!" button again to hear the new music adapted to your tastes. Repeat as many
 times as you like! <b>This program used the Web Audio API, which is currently only full supported on the Google Chrome 
 Browser!</b>
+
+UserID: 
+<?php
+echo $_GET['user_id'];
+?>
 </div>
 </div>
 
