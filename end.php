@@ -53,19 +53,14 @@ $user_id = rand();
   <br><br>
   <font color="black">
 
-  	<p>Hello, and welcome to MusicTrainer [come up with better name], a fun way to learn sight reading. 
-  	You need zero music knowledge to try it out! In fact, we believe that through the simple act of playing this game, you
-  	will learn the basics of music theory. </p>
-
-  	<p>Since this is the beta version of the app and because we wish to collect data regarding whether people can actually learn
-  		music theory by using this tool, we ask you to please fill out a <i>very short</i> music theory quiz before and after
-  		using this app. Enjoy! </p>
+  	<p>Thanks for playing. Please fill out the below survey so that we can see if your basic musical understanding has improved
+  	through playing this game! </p>
 
   	<br>
 
   	<form action="/gdform.php" method="post"> 
 		<input type="hidden" name="subject" value="Prequiz<?= $user_id ?>" /> 
-		<input type="hidden" name="redirect" value="ComputerMusic/game.php?user_id=<?= $user_id ?>" />
+		<input type="hidden" name="redirect" value="ComputerMusic/thanks.php?user_id=<?= $user_id ?>" />
 		<p>Which of the following notes is a third above G?<br>
 			<input type="radio" name="one" value="1wrongA">G<br>
 			<input type="radio" name="one" value="1wrongB">A<br>
@@ -78,7 +73,7 @@ $user_id = rand();
 			<input type="radio" name="two" value="2rightC">C,E,G<br>
 			<input type="radio" name="two" value="2wrongD">A,B,C<br>
 		</p>
-		<input type="submit" name="submit" value="Continue"/>
+		<input type="submit" name="submit" value="Finish"/>
 	</form>
 
 

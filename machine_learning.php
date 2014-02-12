@@ -128,6 +128,7 @@
 	  });
 	  // Add notes to voice
 	  voice.addTickables(staff_notes);
+	  console.log(staff_notes);
 	  // Format and justify the notes to 500 pixels
 	  var formatter = new Vex.Flow.Formatter().joinVoices([voice]).format([voice], 500);
 	  // Render voice
