@@ -32,7 +32,8 @@
 <body bgcolor="#D3D3D3">
 
 <?php
-$user_id = rand();
+	$user_id = $_GET['user_id'];
+	$score = $_GET['score'];
 ?>
 
 
@@ -53,7 +54,16 @@ $user_id = rand();
   <br><br>
   <font color="black">
 
-  	<p>Thanks for participating! Click below to share your results on Facebook:</p>
+  	<p>Thanks for participating! Click <a href="#" 
+	  onclick="
+	    window.open(
+	      'https://www.facebook.com/sharer/sharer.php?u=www.peter-washington.com/ComputerMusic', 
+	      'facebook-share-dialog', 
+	      'width=626,height=436'); 
+	    return false;">
+	  here
+	</a>
+  	 to share your results on Facebook! Your final score was: <?= $score ?>. </p>
 
   	<br>
 
