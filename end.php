@@ -26,6 +26,51 @@
  <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
  <link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
 
+  <script type="text/javascript">
+ 	/*
+	 * Inputs: duration --- the interval at which to call the function
+	 * 		   fn       --- the function to call
+	 *
+	 * Replaces setTimeout() with a more accurate version.
+	 */
+	function interval(duration, fn) {
+
+		this.baseline = undefined;
+		this.duration = duration;
+
+		this.run = function() {
+		    if (this.baseline === undefined) {
+		    	this.baseline = new Date().getTime();
+		    }
+		    fn();
+		    var end = new Date().getTime();
+		    this.baseline += this.duration;
+		    var nextTick = this.duration - (end - this.baseline);
+		    if (nextTick < 0) {
+		      nextTick = 0;
+		    }
+		    (function(i) {
+		        i.timer = setTimeout(function() {
+		        	i.run(end);
+		      	}, nextTick)
+		    }) (this)
+	  	}
+
+		this.end = function() {
+	   		clearTimeout(this.timer);
+	   		this.baseline = undefined;
+	 	}
+
+	 	// Work on this later to be able to add a "tempo" control.
+	 	this.setDuration = function(dur) {
+	 		this.end();
+	 		this.duration = dur;
+	 		this.baseline = new Date().getTime();
+	 		this.run();
+	 	}
+	}
+ </script>
+
 </head>
 
 
@@ -133,6 +178,46 @@
 			<input type="radio" name="five" value="5rightC">C,E,G<br>
 			<input type="radio" name="five" value="5wrongD">F,A,C<br>
 		</p>
+		<p>6) What is the interval that you hear? Click the "Play" button to hear the interval. <br>
+			<button class="btn btn-large btn-success" type="button" onclick="play6()" id="button6">Play!</button>
+			<br>
+			<input type="radio" name="six" value="6wrongA">minor 2nd<br>
+			<input type="radio" name="six" value="6wrongB">Major 2nd<br>
+			<input type="radio" name="six" value="6rightC">minor 3rd<br>
+			<input type="radio" name="six" value="6wrongD">Major 3rd<br>
+		</p>
+		<p>7) What is the interval that you hear? Click the "Play" button to hear the interval. <br>
+			<button class="btn btn-large btn-success" type="button" onclick="play7()" id="button6">Play!</button>
+			<br>
+			<input type="radio" name="seven" value="7rightA">minor 2nd<br>
+			<input type="radio" name="seven" value="7wrongB">Major 2nd<br>
+			<input type="radio" name="seven" value="7wrongC">minor 3rd<br>
+			<input type="radio" name="seven" value="7wrongD">Major 3rd<br>
+		</p>
+		<p>8) What is the interval that you hear? Click the "Play" button to hear the interval. <br>
+			<button class="btn btn-large btn-success" type="button" onclick="play8()" id="button6">Play!</button>
+			<br>
+			<input type="radio" name="eight" value="8wrongA">Perfect 4th<br>
+			<input type="radio" name="eight" value="8rightB">Perfect 5th<br>
+			<input type="radio" name="eight" value="8wrongC">Perfect 8th (Octave)<br>
+			<input type="radio" name="eight" value="8wrongD">Major 3rd<br>
+		</p>
+		<p>9) What is the interval that you hear? Click the "Play" button to hear the interval. <br>
+			<button class="btn btn-large btn-success" type="button" onclick="play9()" id="button6">Play!</button>
+			<br>
+			<input type="radio" name="nine" value="9rightA">Perfect 4th<br>
+			<input type="radio" name="nine" value="9wrongB">Perfect 5th<br>
+			<input type="radio" name="nine" value="9wrongC">Perfect 8th (Octave)<br>
+			<input type="radio" name="nine" value="9wrongD">Major 3rd<br>
+		</p>
+		<p>10) What is the interval that you hear? Click the "Play" button to hear the interval. <br>
+			<button class="btn btn-large btn-success" type="button" onclick="play10()" id="button6">Play!</button>
+			<br>
+			<input type="radio" name="ten" value="10wrongA">Perfect 4th<br>
+			<input type="radio" name="ten" value="10wrongB">Perfect 5th<br>
+			<input type="radio" name="ten" value="10rightC">Perfect 8th (Octave)<br>
+			<input type="radio" name="ten" value="10wrongD">Major 3rd<br>
+		</p>
 		<input type="submit" name="submit" value="Submit!"/>
 	</form>
 
@@ -143,6 +228,107 @@
 </div>
 </div>
 
+<script type="text/javascript">
+	var t = 0;
+	var q = 0;
+
+	function play6() {
+		q = 6;
+		t = 0;
+		timer.run();
+	}
+
+	function play7() {
+		q = 7;
+		t = 0;
+		timer.run();
+	}
+
+	function play8() {
+		q = 8;
+		t = 0;
+		timer.run();
+	}
+
+	function play9() {
+		q = 9;
+		t = 0;
+		timer.run();
+	}
+
+	function play10() {
+		q = 10;
+		t = 0;
+		timer.run();
+	}
+
+	// Play intervals
+	var timer = new interval(2000, function() {
+		if (q == 6) {
+			if (t == 0) {
+				MIDI.noteOn(0, MIDI.keyToNote["E4"], 127, 0);
+			}
+			if (t == 1) {
+				MIDI.noteOn(0, MIDI.keyToNote["G4"], 127, 0);
+			}
+		}
+
+		if (q == 7) {
+			if (t == 0) {
+				MIDI.noteOn(0, MIDI.keyToNote["B4"], 127, 0);
+			}
+			if (t == 1) {
+				MIDI.noteOn(0, MIDI.keyToNote["C5"], 127, 0);
+			}
+		}
+
+		if (q == 8) {
+			if (t == 0) {
+				MIDI.noteOn(0, MIDI.keyToNote["C4"], 127, 0);
+			}
+			if (t == 1) {
+				MIDI.noteOn(0, MIDI.keyToNote["G4"], 127, 0);
+			}
+		}
+
+		if (q == 9) {
+			if (t == 0) {
+				MIDI.noteOn(0, MIDI.keyToNote["D4"], 127, 0);
+			}
+			if (t == 1) {
+				MIDI.noteOn(0, MIDI.keyToNote["G4"], 127, 0);
+			}
+		}
+
+		if (q == 10) {
+			if (t == 0) {
+				MIDI.noteOn(0, MIDI.keyToNote["F4"], 127, 0);
+			}
+			if (t == 1) {
+				MIDI.noteOn(0, MIDI.keyToNote["F5"], 127, 0);
+			}
+		}
+			
+	    t += 1;
+	});
+
+	$(window).load(function() {
+		$('#controls').hide();
+		$('#display').hide();
+		$('#load_files').hide();
+	    MIDI.loadPlugin({
+			soundfontUrl: "./soundfont/",
+			instruments: [ "acoustic_grand_piano", "acoustic_grand_piano" ],
+			callback: function() {
+				$('#loading').remove();
+				$('#controls').show();
+				$('#display').show();
+				$('#load_files').show();
+				draw_canvas(curr_puzzle);
+			}
+		});
+	});
+</script>
 
 </body>
 </html>
