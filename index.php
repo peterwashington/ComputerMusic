@@ -182,13 +182,13 @@ $user_id = rand();
 			<input type="radio" name="five" value="5rightC">C,E,G<br>
 			<input type="radio" name="five" value="5wrongD">F,A,C<br>
 		</p>
-		<p>6) What is the interval that you hear? Click the "Play" button to hear the interval. <br>
+		<p>6) Given that the first note you hear is an "E", what is the second note? Click the "Play" button to hear the interval. <br>
 			<button class="btn btn-large btn-success" type="button" onclick="play6()" id="button6">Play!</button>
 			<br>
-			<input type="radio" name="six" value="6wrongA">minor 2nd<br>
-			<input type="radio" name="six" value="6wrongB">Major 2nd<br>
-			<input type="radio" name="six" value="6rightC">minor 3rd<br>
-			<input type="radio" name="six" value="6wrongD">Major 3rd<br>
+			<input type="radio" name="six" value="6wrongA">E<br>
+			<input type="radio" name="six" value="6wrongB">F<br>
+			<input type="radio" name="six" value="6rightC">G<br>
+			<input type="radio" name="six" value="6wrongD">A<br>
 		</p>
 		<p>7) What is the interval that you hear? Click the "Play" button to hear the interval. <br>
 			<button class="btn btn-large btn-success" type="button" onclick="play7()" id="button6">Play!</button>
@@ -198,13 +198,13 @@ $user_id = rand();
 			<input type="radio" name="seven" value="7wrongC">minor 3rd<br>
 			<input type="radio" name="seven" value="7wrongD">Major 3rd<br>
 		</p>
-		<p>8) What is the interval that you hear? Click the "Play" button to hear the interval. <br>
+		<p>8) Given that the first note you hear is an "C", what is the second note? Click the "Play" button to hear the interval. <br>
 			<button class="btn btn-large btn-success" type="button" onclick="play8()" id="button6">Play!</button>
 			<br>
-			<input type="radio" name="eight" value="8wrongA">Perfect 4th<br>
-			<input type="radio" name="eight" value="8rightB">Perfect 5th<br>
-			<input type="radio" name="eight" value="8wrongC">Perfect 8th (Octave)<br>
-			<input type="radio" name="eight" value="8wrongD">Major 3rd<br>
+			<input type="radio" name="eight" value="8wrongA">F<br>
+			<input type="radio" name="eight" value="8rightB">G<br>
+			<input type="radio" name="eight" value="8wrongC">A<br>
+			<input type="radio" name="eight" value="8wrongD">B<br>
 		</p>
 		<p>9) What is the interval that you hear? Click the "Play" button to hear the interval. <br>
 			<button class="btn btn-large btn-success" type="button" onclick="play9()" id="button6">Play!</button>
@@ -221,6 +221,14 @@ $user_id = rand();
 			<input type="radio" name="ten" value="10wrongB">Perfect 5th<br>
 			<input type="radio" name="ten" value="10rightC">Perfect 8th (Octave)<br>
 			<input type="radio" name="ten" value="10wrongD">Major 3rd<br>
+		</p>
+		<p>11) What note do you hear? Click the "Play" button to hear the note. <br>
+			<button class="btn btn-large btn-success" type="button" onclick="play11()" id="button6">Play!</button>
+			<br>
+			<input type="radio" name="eleven" value="11wrongA">E<br>
+			<input type="radio" name="eleven" value="11rightB">F<br>
+			<input type="radio" name="eleven" value="11wrongC">G<br>
+			<input type="radio" name="eleven" value="11wrongD">No idea<br>
 		</p>
 
 		<p>
@@ -299,6 +307,12 @@ $user_id = rand();
 		timer.run();
 	}
 
+	function play11() {
+		q = 11;
+		t = 0;
+		timer.run();
+	}
+
 	// Play intervals
 	var timer = new interval(2000, function() {
 		if (q == 6) {
@@ -343,6 +357,12 @@ $user_id = rand();
 			}
 			if (t == 1) {
 				MIDI.noteOn(0, MIDI.keyToNote["F5"], 127, 0);
+			}
+		}
+
+		if (q == 11) {
+			if (t == 0) {
+				MIDI.noteOn(0, MIDI.keyToNote["F4"], 127, 0);
 			}
 		}
 			

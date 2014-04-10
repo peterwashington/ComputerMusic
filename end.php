@@ -218,6 +218,14 @@
 			<input type="radio" name="ten" value="10rightC">Perfect 8th (Octave)<br>
 			<input type="radio" name="ten" value="10wrongD">Major 3rd<br>
 		</p>
+		<p>11) What note do you hear? Click the "Play" button to hear the note. <br>
+			<button class="btn btn-large btn-success" type="button" onclick="play11()" id="button6">Play!</button>
+			<br>
+			<input type="radio" name="eleven" value="11wrongA">E<br>
+			<input type="radio" name="eleven" value="11rightB">F<br>
+			<input type="radio" name="eleven" value="11wrongC">G<br>
+			<input type="radio" name="eleven" value="11wrongD">No idea<br>
+		</p>
 		<input type="submit" name="submit" value="Submit!"/>
 	</form>
 
@@ -258,6 +266,12 @@
 
 	function play10() {
 		q = 10;
+		t = 0;
+		timer.run();
+	}
+
+	function play11() {
+		q = 11;
 		t = 0;
 		timer.run();
 	}
@@ -306,6 +320,12 @@
 			}
 			if (t == 1) {
 				MIDI.noteOn(0, MIDI.keyToNote["F5"], 127, 0);
+			}
+		}
+
+		if (q == 11) {
+			if (t == 0) {
+				MIDI.noteOn(0, MIDI.keyToNote["F4"], 127, 0);
 			}
 		}
 			

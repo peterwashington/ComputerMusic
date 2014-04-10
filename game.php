@@ -116,6 +116,48 @@
 		cont.stroke();
  	}
 
+ 	function intervalString(number) {
+ 		if (number === 0) {
+ 			return "Unison/Octave";
+ 		}
+ 		if (number === 1) {
+ 			return "Minor Second (m2)";
+ 		}
+ 		if (number === 2) {
+ 			return "Major Second (M2)";
+ 		}
+ 		if (number === 3) {
+ 			return "Minor Third (m3)";
+ 		}
+ 		if (number === 4) {
+ 			return "Major Third (M3)";
+ 		}
+ 		if (number === 5) {
+ 			return "Perfect Fourth (P4)";
+ 		}
+ 		if (number === 6) {
+ 			return "Tritone";
+ 		}
+ 		if (number === 7) {
+ 			return "Perfect Fifth (P5)";
+ 		}
+ 		if (number === 8) {
+ 			return "Minor Sixth (m6)";
+ 		}
+ 		if (number === 9) {
+ 			return "Major size (M6)";
+ 		}
+ 		if (number === 10) {
+ 			return "Minor Seventh (m7)";
+ 		}
+ 		if (number === 11) {
+ 			return "Major Seventh (M7)";
+ 		}
+ 		if (number == 12) {
+ 			return "Octave";
+ 		}
+ 	}
+
  	var noteScoreNote = "";
  	var input_files = [];
 
@@ -156,6 +198,9 @@
 		<div id="puzzle">
 			<h2>C Major: Puzzle 1</h2>
 		</div>
+		<div id="the_interval">
+			<h3 id="interval">Interval: None</h3>
+		</div>
 		<table>
 			<tr>
 				<canvas id="score" width="1050" height="120"></canvas>
@@ -167,7 +212,7 @@
 		<center>
 			<br>
 			<button class="btn btn-large btn-success" type="button" onclick="play()" id="goButton">Play!</button>
-			<button class="btn btn-large btn-warning" type="button" onclick="next_puzzle()" id="nextButton" disabled="true">Next Level</button>
+			<button class="btn btn-large btn-warning" type="button" onclick="next_puzzle()" id="nextButton" disabled="true">Next Puzzle</button>
 			<button class="btn btn-large btn-danger" type="button" onclick="end_game()">End Game</button>
 			
 			<form action="/gdform.php" method="post" name="gameMetrics" id="gameMetrics"> 
@@ -225,6 +270,7 @@ var trebleClicks = {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0, 9:0, 10:0, 11:0
 // Response to user's clicking guess.
 $("#score").click(function myDown(e) 
 {
+	// Paint and update score.
 	var position = $(canvas).position();
 	var x = e.pageX-position.left;
 	var y = e.pageY-position.top;
@@ -258,6 +304,24 @@ $("#score").click(function myDown(e)
 			$('h2#numTries').text("Guesses Left: " + String(3 - guessNumber));
 		}
 	}
+
+	// Adaptive learning.
+	if (gameScore < 0) {
+		level = 0;
+		next_puzzle();
+	}
+	if (gameScore >= 0 && gameScore < 50) {
+		level = 1;
+		next_puzzle();
+	}
+	if (gameScore >= 50 && gameScore < 200) {
+		level = 2;
+		next_puzzle();
+	}
+	if (gameScore >= 200) {
+		level = 3;
+		next_puzzle();
+	}
 });
 
 /*
@@ -281,7 +345,7 @@ function next_puzzle() {
 	second_count = 0;
 	// Update game variables
 	curr_puzzle += 1;
-	if (curr_puzzle === puzzles.length) {
+	if (curr_puzzle === puzzles[0].length) {
 		end_game();
 	}
 	wrongNoteIndex = Math.floor((Math.random()*16) + 1);
@@ -317,7 +381,7 @@ var draw_canvas = function(puzzle) {
 	// Clear the canvas here?
 
 	var first_time = 0;
-	var melody = puzzles[puzzle].slice(0);
+	var melody = puzzles[level][puzzle].slice(0);
 	for (var i = -1; i < melody.length; i++) {
 		var stave = new Vex.Flow.Stave(last_stave.width + last_stave.x, 0, 60);
 		if (first_time === 0) {
@@ -394,27 +458,61 @@ var noteToDegree = {"C4": 1, "C5": 1, "C6": 1, "D4": 2, "D5": 2, "D6": 2, "E4": 
 var validNotes = ["C4", "C5", "D4", "D5", "E4", "E5", "F4", "F5", "G4", "G5", "A4", "A5", "B4", "B5"];
 
 var note = "";
+var prev_note = "";
 
 // Correct melodies
-var puzzles = [ ["C5", "C5", "G5", "G5", "A5", "A5", "G5", "rest", "F5", "F5", "E5", "E5", "D5", "D5", "C5", "rest"],
-				["C5", "D5", "E5", "C5", "C5", "D5", "E5", "C5", "E5", "F5", "G5", "rest", "E5", "F5", "G5", "rest"],
-				["C5", "rest", "rest", "G4", "A4", "G4", "rest", "G4", "A4", "G4", "rest", "G4", "A4", "G4", "rest", "rest"],
-				["C5", "D5", "E5", "F5", "G5", "A5", "B5", "C6", "C6", "B5", "A5", "G5", "F5", "E5", "D5", "C5"],
-				["C5", "E5", "G5", "rest", "F5", "A5", "C6", "rest", "B5", "G5", "A5", "B5", "C6", "G5", "C5", "rest"],
-				["A4", "B4", "C5", "B4", "C5", "B4", "C5", "E5", "F5", "E5", "D5", "C5", "B4", "A4", "E4", "A4"],
-				["E5", "F5", "G5", "rest", "F5", "E5", "D5", "rest", "E5", "D5", "C5", "rest", "D5", "rest", "rest", "rest"],
-				["C4", "E4", "G4", "C5", "E5", "G4", "C5", "E5", "C4", "E4", "G4", "C5", "E5", "G4", "C5", "E5"],
-				["A4", "B4", "C5", "E5", "F5", "E5", "F5", "E5", "D5", "C5", "B4", "A4", "B4", "G5", "A5", "A5"],
-				["C5", "C4", "A4", "C4", "G4", "C4", "E4", "C4", "D4", "E4", "D4", "C4", "D4", "rest", "C4"],
-				["A4", "C5", "E5", "rest", "D5", "F5", "A5", "rest", "E5", "B4", "C5", "D5", "E5", "B4", "E4", "rest"],
-				["C4", "C5", "D4", "A4", "B4", "C5", "A4", "G4", "C5", "C4", "E4", "A4", "G4", "A4", "G4", "C4"]
-			 ];
+var puzzles = [ [	["C5", "C5", "G5", "G5", "A5", "A5", "G5", "rest", "F5", "F5", "E5", "E5", "D5", "D5", "C5", "rest"],
+					["C5", "D5", "E5", "C5", "C5", "D5", "E5", "C5", "E5", "F5", "G5", "rest", "E5", "F5", "G5", "rest"],
+					["C5", "rest", "rest", "G4", "A4", "G4", "rest", "G4", "A4", "G4", "rest", "G4", "A4", "G4", "rest", "rest"],
+					["C5", "D5", "E5", "F5", "G5", "A5", "B5", "C6", "C6", "B5", "A5", "G5", "F5", "E5", "D5", "C5"],
+					["E5", "F5", "G5", "rest", "F5", "E5", "D5", "rest", "E5", "D5", "C5", "rest", "D5", "rest", "rest", "rest"],
+					["E5", "D5", "C5", "D5", "E5", "E5", "E5", "rest", "D6", "D5", "D5", "rest", "E5", "G5", "G5", "rest"],
+				],
+
+				[	["C5", "E5", "G5", "rest", "F5", "A5", "C6", "rest", "B5", "G5", "A5", "B5", "C6", "G5", "C5", "rest"], 
+					["C4", "E4", "G4", "C5", "E5", "G4", "C5", "E5", "C4", "E4", "G4", "C5", "E5", "G4", "C5", "E5"],
+					["A4", "C5", "E5", "rest", "D5", "F5", "A5", "rest", "E5", "B4", "C5", "D5", "E5", "B4", "E4", "rest"],
+					["A4", "B4", "C5", "B4", "C5", "B4", "C5", "E5", "F5", "E5", "D5", "C5", "B4", "A4", "E4", "A4"],
+					["A4", "B4", "C5", "E5", "F5", "E5", "F5", "E5", "D5", "C5", "B4", "A4", "B4", "A4", "A5", "A4"],
+					["C5", "E5", "G5", "A5", "G5", "E5", "C5", "rest", "C5", "E5", "A5", "G5", "E5", "D5", "C5", "C4"]
+				],
+
+				[	["C5", "C4", "A4", "C4", "G4", "C4", "E4", "C4", "D4", "E4", "D4", "C4", "D4", "rest", "C4", "C4"],
+					["C4", "C5", "D4", "A4", "B4", "C5", "A4", "G4", "C5", "C4", "E4", "A4", "G4", "A4", "G4", "C4"],
+					["G4", "B4", "A4", "G4", "F4", "A4", "G4", "C5", "B4", "D5", "F5", "E5", "D5", "A4", "D4", "G4"],
+					["F4", "A4", "G4", "B4", "C5", "A5", "G5", "E5", "D5", "C5", "A4", "C5", "D5", "F5", "E5", "C5"],
+					["A4", "E4", "A4", "C5", "A4", "F5", "E5", "D5", "C5", "E4", "F4", "D4", "G4", "A4", "E4", "A4"],
+					["C5", "E5", "G5", "C5", "F5", "A5", "G5", "E5", "B4", "C5", "F5", "A5", "B5", "F4", "B4", "C5"]
+				],
+
+				[	["B4", "F4", "C4", "G4", "A4", "F4", "E4", "G4", "B4", "B4", "A4", "D4", "C4", "F4", "B4", "E4"],
+					["G4", "F4", "D4", "E4", "C4", "E4", "G4", "A4", "C4", "D4", "A4", "G4", "E4", "C4", "A4", "E4"],
+					["F4", "C4", "F4", "A4", "F4", "E4", "B4", "G4", "A4", "D4", "B4", "E4", "G4", "F4", "B4", "E4"],
+					["E4", "G4", "A4", "E4", "C4", "G4", "E4", "A4", "C4", "A4", "F4", "E4", "C4", "A4", "F4", "G4"],
+					["B4", "A4", "E4", "A4", "C4", "F4", "A4", "C4", "B4", "B4", "C4", "A4", "E4", "F4", "G4", "A4"],
+					["C4", "E4", "D4", "G4", "C4", "E4", "F4", "B4", "D4", "B4", "E4", "C4", "E4", "G4", "D4", "F4"],
+					["B4", "C4", "A4", "C4", "D4", "F4", "E4", "B4", "G4", "F4", "A4", "B4", "A4", "G4", "B4", "E4"],
+					["A4", "D4", "F4", "B4", "D4", "F4", "E4", "G4", "B4", "E4", "D4", "D4", "C4", "F4", "B4", "E4"],
+					["D4", "E4", "A4", "E4", "D4", "A4", "E4", "B4", "D4", "C4", "F4", "A4", "E4", "G4", "B4", "C4"],
+					["F4", "G4", "E4", "G4", "C4", "E4", "D4", "F4", "G4", "E4", "F4", "B4", "C4", "A4", "B4", "G4"],
+					["G4", "A4", "D4", "G4", "B4", "D4", "E4", "G4", "B4", "E4", "A4", "D4", "C4", "E4", "D4", "C4"],
+					["F4", "C4", "A4", "E4", "C4", "D4", "G4", "F4", "B4", "C4", "A4", "D4", "B4", "C4", "E4", "F4"],
+					["A4", "A4", "E4", "E4", "G4", "G4", "B4", "B4", "D4", "D4", "E4", "E4", "C4", "C4", "A4", "A4"],
+					["D4", "B4", "G4", "A4", "D4", "F4", "E4", "G4", "B4", "D4", "C4", "G4", "B4", "E4", "F4", "G4"],
+					["E4", "D4", "G4", "B4", "F4", "E4", "D4", "C4", "G4", "E4", "A4", "E4", "G4", "E4", "C4", "E4"],
+					["B4", "A4", "C4", "G4", "A4", "F4", "E4", "C4", "D4", "G4", "F4", "D4", "E4", "F4", "A4", "D4"]
+
+				] ];
+
 
 // Game variables
 var curr_puzzle = 0;
 var wrongNoteIndex = Math.floor((Math.random()*16) + 1);
 var guessNumber = 0;
 var gameScore = 0;
+
+var level = 0;
+var performanceFactor = 0;
 
 // Timer saved variables.
 var minuteRecord = "";
@@ -464,16 +562,18 @@ var stopwatch = new interval(10, function() {
 // Update highlighting of the notes.
 var timer = new interval(tempo, function() {
 	// Play note.
+	prev_note = note;
 	if (t === wrongNoteIndex) {
 		var tempValidNotes = validNotes.slice(0);
-		tempValidNotes.splice(tempValidNotes.indexOf(puzzles[curr_puzzle].slice(0)[t-1]), 1);
+		tempValidNotes.splice(tempValidNotes.indexOf(puzzles[level][curr_puzzle].slice(0)[t-1]), 1);
 		note = tempValidNotes[Math.floor(Math.random() * tempValidNotes.length)];
 	}
 	else {
-		note = puzzles[curr_puzzle].slice(0)[t-1];
+		note = puzzles[level][curr_puzzle].slice(0)[t-1];
 	}
 	
 	console.log("YO " + note);
+	console.log("LEVEL " + level)
 	if (note != "rest") {
 		MIDI.noteOn(0, MIDI.keyToNote[note], 127, 0);
 	}
@@ -494,20 +594,26 @@ var timer = new interval(tempo, function() {
 		cont.strokeRect((t-1) * 60, 0, 60, 120);
 		cont.stroke();
 	}
-	if (t < puzzles[curr_puzzle].slice(0).length + 1) {
+	if (t < puzzles[level][curr_puzzle].slice(0).length + 1) {
 		cont.globalAlpha = 1.0;
 		cont.lineWidth = 5;
 		cont.strokeStyle = 'green';
 		cont.strokeRect(t * 60, 0, 60, 120);
 	}
 
+	var intv = intervalString(Math.abs(MIDI.keyToNote[note] - MIDI.keyToNote[prev_note]) % 12);
+
+	if (intv) {
+		$('#interval').text("Interval: " + intv);
+	}
+	
 	$('h2#score').text("Score: " + String(gameScore));
 	
     t += 1;
 }); 
 
 var external_timer = new interval(tempo, function() {
-	if (t > puzzles[curr_puzzle].slice(0).length + 1) {
+	if (t > puzzles[level][curr_puzzle].slice(0).length + 1) {
 		stop();
 		//play();
 	}
