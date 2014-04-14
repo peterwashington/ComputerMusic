@@ -196,10 +196,11 @@
 
 	<div id="display">
 		<div id="puzzle">
-			<h2>C Major: Puzzle 1</h2>
+			<h2>Puzzle 1</h2>
 		</div>
 		<div id="the_interval">
-			<h3 id="interval">Interval: None</h3>
+			<h3 id="note"><font color="blue">Note:</font> None</h3>
+			<h3 id="interval"><font color="blue">Interval:</font> None</h3>
 		</div>
 		<table>
 			<tr>
@@ -223,6 +224,7 @@
 				<input type="hidden" id="secondID" name="second" value="" />
 				<input type="hidden" id="millisecondsID" name="milliseconds" value="" />
 				<input type="hidden" id="scoreID" name="score" value="" />
+				<input type="hidden" id="levelID" name="level" value="" />
 				<input type="hidden" id="userID" name="user" value="<?= $user_id ?>" />
 				<input type="hidden" id="wrongIndexID" name="wrongIndex" value="" />
 			</form>
@@ -232,7 +234,7 @@
 			</div>
 			<font color="blue">
 				<h2 id="score">Score: 0</h2> 
-				<h2 id="numTries">Guesses Left: 3</h2>
+				<h2 id="numTries">Guesses Left: 2</h2>
 			</font>
 		</center>
 	</div>
@@ -260,6 +262,7 @@ function end_game() {
 	document.getElementById('millisecondsID').value = millisecondRecord;
 	document.getElementById('scoreID').value = gameScore;
 	document.getElementById('wrongIndexID').value = wrongIndexValues;
+	document.getElementById('levelID').value = levelValues;
 	document.getElementById('userID').value = "user_id=<?= $user_id ?>";
 	document.getElementById('redirectID').value = "ComputerMusic/end.php?user_id=<?= $user_id ?>&score=" + gameScore;
 	document.getElementById('gameMetrics').submit();
@@ -301,26 +304,38 @@ $("#score").click(function myDown(e)
 		  		cont.strokeRect(wrongNoteIndex * 60, 0, 60, 120);
 			}
 			gameScore -= 3 * guessNumber;
-			$('h2#numTries').text("Guesses Left: " + String(3 - guessNumber));
+			$('h2#numTries').text("Guesses Left: " + String(2 - guessNumber));
 		}
 	}
 
 	// Adaptive learning.
 	if (gameScore < 0) {
+		prev_level = level;
 		level = 0;
-		next_puzzle();
+		if (prev_level != level) {
+			next_puzzle();
+		}	
 	}
-	if (gameScore >= 0 && gameScore < 50) {
+	if (gameScore >= 0 && gameScore < 40) {
+		prev_level = level;
 		level = 1;
-		next_puzzle();
+		if (prev_level != level) {
+			next_puzzle();
+		}	
 	}
-	if (gameScore >= 50 && gameScore < 200) {
+	if (gameScore >= 40 && gameScore < 80) {
+		prev_level = level;
 		level = 2;
-		next_puzzle();
+		if (prev_level != level) {
+			next_puzzle();
+		}	
 	}
-	if (gameScore >= 200) {
+	if (gameScore >= 80) {
+		prev_level = level;
 		level = 3;
-		next_puzzle();
+		if (prev_level != level) {
+			next_puzzle();
+		}	
 	}
 });
 
@@ -330,13 +345,14 @@ $("#score").click(function myDown(e)
 function next_puzzle() {
 	console.log("hurr");
 	document.getElementById("goButton").disabled = false; 
-	$('h2#numTries').text("Guesses Left: 3");
+	$('h2#numTries').text("Guesses Left: 2");
 	trebleClicks = {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0, 9:0, 10:0, 11:0, 12:0};
 	// Record times for a particular level.
 	minuteRecord += String(minute) + "-";
 	secondRecord += String(second) + "-";
 	millisecondRecord += String(millisecond) + "-";
 	wrongIndexValues += String(wrongNoteIndex) + "-";
+	levelValues += String(level) + "-";
 	// Reset timer variables.
 	minute = 0;
 	second = 0;
@@ -344,8 +360,8 @@ function next_puzzle() {
 	minute_count = 0;
 	second_count = 0;
 	// Update game variables
-	curr_puzzle += 1;
-	if (curr_puzzle === puzzles[0].length) {
+	curr_puzzle[level] += 1;
+	if (curr_puzzle[level] === 6) {
 		end_game();
 	}
 	wrongNoteIndex = Math.floor((Math.random()*16) + 1);
@@ -353,7 +369,7 @@ function next_puzzle() {
 	// Reset musical time (measure).
 	t = 1;
 	// Update text describing current level.
-	$('#puzzle').html("<h2>C Major: Puzzle " + String(curr_puzzle+1) + "</h2>");
+	$('#puzzle').html("<h2>Puzzle " + String(curr_puzzle[level]+1) + "</h2>");
 	// Redraw the canvas
 	var canvas = $("#score")[0];
 	var renderer = new Vex.Flow.Renderer(canvas, Vex.Flow.Renderer.Backends.CANVAS);
@@ -362,7 +378,7 @@ function next_puzzle() {
 	renderer = new Vex.Flow.Renderer(canvas, Vex.Flow.Renderer.Backends.CANVAS);
 	ctx = renderer.getContext();
 	last_stave = new Vex.Flow.Stave(0, 0, 0);
-	draw_canvas(curr_puzzle);
+	draw_canvas(curr_puzzle[level]);
 }
 
 // The current tempo (in milliseconds).
@@ -506,7 +522,7 @@ var puzzles = [ [	["C5", "C5", "G5", "G5", "A5", "A5", "G5", "rest", "F5", "F5",
 
 
 // Game variables
-var curr_puzzle = 0;
+var curr_puzzle = [0, 0, 0, 0];
 var wrongNoteIndex = Math.floor((Math.random()*16) + 1);
 var guessNumber = 0;
 var gameScore = 0;
@@ -519,6 +535,7 @@ var minuteRecord = "";
 var secondRecord = "";
 var millisecondRecord = "";
 var wrongIndexValues = "";
+var levelValues = "";
 
 // Stopwatch timer
 var minute = 0;
@@ -565,11 +582,11 @@ var timer = new interval(tempo, function() {
 	prev_note = note;
 	if (t === wrongNoteIndex) {
 		var tempValidNotes = validNotes.slice(0);
-		tempValidNotes.splice(tempValidNotes.indexOf(puzzles[level][curr_puzzle].slice(0)[t-1]), 1);
+		tempValidNotes.splice(tempValidNotes.indexOf(puzzles[level][curr_puzzle[level]].slice(0)[t-1]), 1);
 		note = tempValidNotes[Math.floor(Math.random() * tempValidNotes.length)];
 	}
 	else {
-		note = puzzles[level][curr_puzzle].slice(0)[t-1];
+		note = puzzles[level][curr_puzzle[level]].slice(0)[t-1];
 	}
 	
 	console.log("YO " + note);
@@ -594,7 +611,7 @@ var timer = new interval(tempo, function() {
 		cont.strokeRect((t-1) * 60, 0, 60, 120);
 		cont.stroke();
 	}
-	if (t < puzzles[level][curr_puzzle].slice(0).length + 1) {
+	if (t < puzzles[level][curr_puzzle[level]].slice(0).length + 1) {
 		cont.globalAlpha = 1.0;
 		cont.lineWidth = 5;
 		cont.strokeStyle = 'green';
@@ -603,8 +620,12 @@ var timer = new interval(tempo, function() {
 
 	var intv = intervalString(Math.abs(MIDI.keyToNote[note] - MIDI.keyToNote[prev_note]) % 12);
 
+	if (note) {
+		$('#note').html("<font color='blue'>Note:</font> " + note);
+	}
+
 	if (intv) {
-		$('#interval').text("Interval: " + intv);
+		$('#interval').html("<font color='blue'>Interval:</font> " + intv);
 	}
 	
 	$('h2#score').text("Score: " + String(gameScore));
@@ -613,7 +634,7 @@ var timer = new interval(tempo, function() {
 }); 
 
 var external_timer = new interval(tempo, function() {
-	if (t > puzzles[level][curr_puzzle].slice(0).length + 1) {
+	if (t > puzzles[level][curr_puzzle[level]].slice(0).length + 1) {
 		stop();
 		//play();
 	}
@@ -631,7 +652,7 @@ $(window).load(function() {
 			$('#controls').show();
 			$('#display').show();
 			$('#load_files').show();
-			draw_canvas(curr_puzzle);
+			draw_canvas(curr_puzzle[level]);
 		}
 	});
 });
