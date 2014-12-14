@@ -1,11 +1,4 @@
-ComputerMusic
+Computational Methods for Music Pedagogy
 =============
 
-Interactive machine learning applied to computer music.
-
-The general idea is to demonstrate that users without prior knowledge of music theory can learn the basics
-by teaching a computer to learn! This works with music because music is one of the few fields where a user can
-determine that music sounds good without knowing the technical details as to why it sounds good.
-
-THIS IS STILL BEING BUILT! I will be committing about once a week on average. A usable prototype should be ready
-by January, 2014.
+Music education is often difficult to teach, as it usually requires a significant familiarity with an instrument and spending a great deal of time attempting to learn sight-reading and other musical skills. With technology becoming prominent in everyone's lives, it seems natural to consider the benefits of using web and mobile technologies to aid in the education process. There has been a recent trend in exploring the ways in which computer games can be used for educational purposes in order to make learning fun and teaching more effective. With this in mind, we have built a simple game, MusicTrainer, which requires users to identify an incorrect note played in a melody written out as sheet music. MusicTrainer uses adaptive learning to adjust the difficulty of the game based on the user’s performance. We require users to take a music exam before and after playing the game. Through observing the scores of users on these exams as well as recording other factors such as how long was spent playing the game and how long it took users to progress through difficulty levels, we have found that the gamification of music theory while utilizing adaptive learning can be a fast and effective way to teach musical concepts. 
